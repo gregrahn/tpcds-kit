@@ -1,0 +1,36 @@
+# Object files
+*.o
+
+# Libraries
+*.lib
+*.a
+
+# Shared objects (inc. Windows DLLs)
+*.dll
+*.so
+*.so.*
+*.dylib
+
+# Executables
+*.exe
+*.out
+*.app
+
+# Generated files
+tables.h
+streams.h
+mkheader
+columns.h
+tpcds.idx.h
+tpcds.idx
+distcomp
+y.tab.h
+y.tab.c
+y.output
+tokenizer.c
+dsqgen
+dsdgen
+checksum
+makefile
+.ctags_updated
+tags
