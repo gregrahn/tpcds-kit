@@ -32,8 +32,11 @@
 -- 
 -- Contributors:
 -- 
+ define YEAR= random(1998,2002, uniform); -- for qualification 2002
+ define MONTH = random(1,7,uniform); -- for qualification 9
  define CINDX = random(1,rowcount("categories"),uniform);
  define CATEGORY = distmember(categories,[CINDX],1);
+ define CLASS = dist(distmember(categories,[CINDX],2),1,1); -- for qualification 'golf'
  define _LIMIT=100;
  
  with my_customers as (

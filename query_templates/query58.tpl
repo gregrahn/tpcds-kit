@@ -32,6 +32,8 @@
 -- 
 -- Contributors:
 -- 
+ define YEAR = random(1998, 2002, uniform); -- 1998
+ define SALES_DATE=date([YEAR]+"-01-01",[YEAR]+"-07-24",sales); -- for qualification 1998-08-18
  define _LIMIT=100;
  
  with ss_items as

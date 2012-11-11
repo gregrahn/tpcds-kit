@@ -32,6 +32,8 @@
 -- 
 -- Contributors:
 -- 
+ define YEAR= random(1998, 2000, uniform); -- for qualification: 2000
+ define MONTH = random(1,7,uniform); -- for qualification: 7
  define TOPPERCENT=random(95,95,uniform); 
  define _LIMIT=100;
  

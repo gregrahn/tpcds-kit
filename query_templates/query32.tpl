@@ -33,6 +33,7 @@
 -- Contributors:
 -- 
 
+define IMID  = random(1,1000,uniform); -- 255 for qualification
 define YEAR  = random(1998,2002,uniform);
 define CSDATE = date([YEAR]+"-01-01",[YEAR]+"-04-01",sales);
 define _LIMIT=100;

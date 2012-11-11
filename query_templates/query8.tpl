@@ -34,6 +34,7 @@
 -- 
  define YEAR=random(1998,2002,uniform);
  define QOY=random(1,2,uniform);
+ define ZIP=ulist(random(10000,99999,uniform),400);  --- for qualification '35709','31904', must be included
  define _LIMIT=100;
 
  [_LIMITA] select [_LIMITB] s_store_name
