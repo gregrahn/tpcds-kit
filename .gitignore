@@ -34,3 +34,6 @@ checksum
 makefile
 .ctags_updated
 tags
+
+# Flat files
+*.dat

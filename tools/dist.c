@@ -38,7 +38,6 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <assert.h>
-#include <malloc.h>
 #ifdef WIN32
 #include <io.h>
 #include <stdlib.h>
