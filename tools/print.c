@@ -480,9 +480,9 @@ print_start (int tbl)
 		   pTdef->outfile = fopen (path, "w");
 #endif
 	   }
+     fpOutfile = pTdef->outfile;
    }
    
-   fpOutfile = pTdef->outfile;
    res = (fpOutfile != NULL);
 
    if (!res)                    /* open failed! */
