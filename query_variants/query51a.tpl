@@ -83,12 +83,11 @@ select item_sk
                  ,store.cume_sales store_sales
            from web_v1 web full outer join store_v1 store on (web.item_sk = store.item_sk
                                                           and web.d_date = store.d_date)
-          )
+          ) sq
 )
 [_LIMITA] select [_LIMITB] *
 from(
-        select v1.item_sk, v1.d_date, v1.web_sales, v1.store_sales, max(v2.web_sales) web_cumulative, max(v2.store_sales) s
-tore_cumulative
+        select v1.item_sk, v1.d_date, v1.web_sales, v1.store_sales, max(v2.web_sales) web_cumulative, max(v2.store_sales) store_cumulative
         from v v1, v v2
         where v1.item_sk = v2.item_sk and v1.rk >= v2.rk
         group by v1.item_sk, v1.d_date, v1.web_sales, v1.store_sales
