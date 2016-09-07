@@ -33,7 +33,7 @@
 -- Contributors:
 -- 
 define YEAR=random(1998, 2002, uniform);
-define SELECTCONE=text({"ss_sold_year",1},{"ss_item_sk",1},{"ss_customer_sk",1},{"ss_sold_year, ss_item_sk, ss_customer_sk",1});
+define SELECTONE=text({"ss_sold_year",1},{"ss_item_sk",1},{"ss_customer_sk",1},{"ss_sold_year, ss_item_sk, ss_customer_sk",1});
 
 define _LIMIT = 100;
 
@@ -74,7 +74,7 @@ ss as
    group by d_year, ss_item_sk, ss_customer_sk
    )
 [_LIMITA] select [_LIMITB]
-[SELECTCONE],
+[SELECTONE],
 round(ss_qty/(coalesce(ws_qty+cs_qty,1)),2) ratio,
 ss_qty store_qty, ss_wc store_wholesale_cost, ss_sp store_sales_price,
 coalesce(ws_qty,0)+coalesce(cs_qty,0) other_chan_qty,
@@ -85,7 +85,7 @@ left join ws on (ws_sold_year=ss_sold_year and ws_item_sk=ss_item_sk and ws_cust
 left join cs on (cs_sold_year=ss_sold_year and cs_item_sk=cs_item_sk and cs_customer_sk=ss_customer_sk)
 where coalesce(ws_qty,0)>0 and coalesce(cs_qty, 0)>0 and ss_sold_year=[YEAR]
 order by 
-  [SELECTCONE],
+  [SELECTONE],
   ss_qty desc, ss_wc desc, ss_sp desc,
   other_chan_qty,
   other_chan_wholesale_cost,

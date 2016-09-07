@@ -34,7 +34,7 @@
 -- 
  define YEAR=random(1998,2002,uniform);
  define QOY=random(1,2,uniform);
- define ZIP=ulist(random(10000,99999,uniform),400);  --- for qualification '35709','31904', must be included
+ define ZIP=ulist(random(10000,99999,uniform),400);  
  define _LIMIT=100;
 
  [_LIMITA] select [_LIMITB] s_store_name
@@ -44,7 +44,7 @@
      ,store,
      (select ca_zip
      from (
-     (SELECT substr(ca_zip,1,5) ca_zip
+      SELECT substr(ca_zip,1,5) ca_zip
       FROM customer_address
       WHERE substr(ca_zip,1,5) IN (
                           '[ZIP.1]','[ZIP.2]','[ZIP.3]','[ZIP.4]','[ZIP.5]','[ZIP.6]',
@@ -126,15 +126,15 @@
                           '[ZIP.382]','[ZIP.383]','[ZIP.384]','[ZIP.385]','[ZIP.386]',
                           '[ZIP.387]','[ZIP.388]','[ZIP.389]','[ZIP.390]','[ZIP.391]',
                           '[ZIP.392]','[ZIP.393]','[ZIP.394]','[ZIP.395]','[ZIP.396]',
-                          '[ZIP.397]','[ZIP.398]','[ZIP.399]','[ZIP.400]'))
+                          '[ZIP.397]','[ZIP.398]','[ZIP.399]','[ZIP.400]')
      intersect
-     (select ca_zip
+      select ca_zip
       from (SELECT substr(ca_zip,1,5) ca_zip,count(*) cnt
             FROM customer_address, customer
             WHERE ca_address_sk = c_current_addr_sk and
                   c_preferred_cust_flag='Y'
             group by ca_zip
-            having count(*) > 10)A1))A2) V1
+            having count(*) > 10)A1)A2) V1
  where ss_store_sk = s_store_sk
   and ss_sold_date_sk = d_date_sk
   and d_qoy = [QOY] and d_year = [YEAR]

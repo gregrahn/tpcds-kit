@@ -32,29 +32,8 @@
 -- 
 -- Contributors:
 -- 
--- RRC 12 April 2016
---        1. MQM to change string concat operator || with concat function . Permitted by Sec 4.2.3.4 c/2
- define CITY = dist(cities, 1, large);
- define INCOME = random(0, 70000, uniform);
- define _LIMIT=100;
- 
- [_LIMITA] select [_LIMITB] c_customer_id as customer_id
-       ,concat(c_last_name , ', ' , coalesce(c_first_name,'')) as customername
- from customer
-     ,customer_address
-     ,customer_demographics
-     ,household_demographics
-     ,income_band
-     ,store_returns
- where ca_city	        =  '[CITY]'
-   and c_current_addr_sk = ca_address_sk
-   and ib_lower_bound   >=  [INCOME]
-   and ib_upper_bound   <=  [INCOME] + 50000
-   and ib_income_band_sk = hd_income_band_sk
-   and cd_demo_sk = c_current_cdemo_sk
-   and hd_demo_sk = c_current_hdemo_sk
-   and sr_cdemo_sk = cd_demo_sk
- order by c_customer_id
- [_LIMITC];
- 
-
+define __LIMITA = "";
+define __LIMITB = "";
+define __LIMITC = " limit %d";
+define _BEGIN = "-- start query " + [_QUERY] + " in stream " + [_STREAM] + " using template " + [_TEMPLATE] + " and seed " + [_SEED];
+define _END = "-- end query " + [_QUERY] + " in stream " + [_STREAM] + " using template " + [_TEMPLATE];

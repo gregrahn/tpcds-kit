@@ -32,8 +32,7 @@
 -- 
 -- Contributors:
 -- 
-define year = random(1998,2002,uniform);
-define DMS = random(1176,1224,uniform); -- Qualification: 1176 
+define DMS = random(1176,1224,uniform);
 define _LIMIT=100;
 
 [_LIMITA] select [_LIMITB] * 
@@ -49,7 +48,7 @@ from (select i_manager_id
         and ss_store_sk = s_store_sk
         and d_month_seq in ([DMS],[DMS]+1,[DMS]+2,[DMS]+3,[DMS]+4,[DMS]+5,[DMS]+6,[DMS]+7,[DMS]+8,[DMS]+9,[DMS]+10,[DMS]+11)
         and ((    i_category in ('Books','Children','Electronics')
-              and i_class in ('personal','portable','refernece','self-help')
+              and i_class in ('personal','portable','reference','self-help')
               and i_brand in ('scholaramalgamalg #14','scholaramalgamalg #7',
 		                  'exportiunivamalg #9','scholaramalgamalg #9'))
            or(    i_category in ('Women','Music','Men')
