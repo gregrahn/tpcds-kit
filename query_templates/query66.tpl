@@ -32,6 +32,8 @@
 -- 
 -- Contributors:
 -- 
+--  RRC 12 April 2016
+--          1. MQM to change string concat operator || with concat function . Permitted by Sec 4.2.3.4 c/2
   define YEAR= random(1998, 2002, uniform);
  define TIMEONE= random(1, 57597, uniform);
  define SMC = ulist(dist(ship_mode_carrier, 1, 1),2);
@@ -87,14 +89,14 @@
  	,sum(nov_net) as nov_net
  	,sum(dec_net) as dec_net
  from (
-    (select 
+     select 
  	w_warehouse_name
  	,w_warehouse_sq_ft
  	,w_city
  	,w_county
  	,w_state
  	,w_country
- 	,'[SMC.1]' || ',' || '[SMC.2]' as ship_carriers
+ 	,concat('[SMC.1]' , ',' , '[SMC.2]') as ship_carriers
        ,d_year as year
  	,sum(case when d_moy = 1 
  		then [SALESONE]* ws_quantity else 0 end) as jan_sales
@@ -166,16 +168,15 @@
  	,w_state
  	,w_country
        ,d_year
- 	)
  union all
-    (select 
+     select 
  	w_warehouse_name
  	,w_warehouse_sq_ft
  	,w_city
  	,w_county
  	,w_state
  	,w_country
- 	,'[SMC.1]' || ',' || '[SMC.2]' as ship_carriers
+ 	,concat('[SMC.1]' , ',' , '[SMC.2]') as ship_carriers
        ,d_year as year
  	,sum(case when d_moy = 1 
  		then [SALESTWO]* cs_quantity else 0 end) as jan_sales
@@ -247,7 +248,6 @@
  	,w_state
  	,w_country
        ,d_year
-     ) 
  ) x
  group by 
         w_warehouse_name

@@ -32,8 +32,8 @@
 -- 
 -- Contributors:
 -- 
- define YEAR = random(1998, 2002, uniform); -- 1998
- define SALES_DATE=date([YEAR]+"-01-01",[YEAR]+"-07-24",sales); -- for qualification 1998-08-18
+ define YEAR = random(1998, 2002, uniform); 
+ define SALES_DATE=date([YEAR]+"-01-01",[YEAR]+"-07-24",sales); 
  define _LIMIT=100;
  
  with ss_items as
@@ -80,11 +80,11 @@
  group by i_item_id)
  [_LIMITA] select [_LIMITB] ss_items.item_id
        ,ss_item_rev
-       ,ss_item_rev/(ss_item_rev+cs_item_rev+ws_item_rev)/3 * 100 ss_dev
+       ,ss_item_rev/((ss_item_rev+cs_item_rev+ws_item_rev)/3) * 100 ss_dev
        ,cs_item_rev
-       ,cs_item_rev/(ss_item_rev+cs_item_rev+ws_item_rev)/3 * 100 cs_dev
+       ,cs_item_rev/((ss_item_rev+cs_item_rev+ws_item_rev)/3) * 100 cs_dev
        ,ws_item_rev
-       ,ws_item_rev/(ss_item_rev+cs_item_rev+ws_item_rev)/3 * 100 ws_dev
+       ,ws_item_rev/((ss_item_rev+cs_item_rev+ws_item_rev)/3) * 100 ws_dev
        ,(ss_item_rev+cs_item_rev+ws_item_rev)/3 average
  from ss_items,cs_items,ws_items
  where ss_items.item_id=cs_items.item_id

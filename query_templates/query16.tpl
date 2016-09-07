@@ -32,6 +32,9 @@
 -- 
 -- Contributors:
 -- 
+-- RRC 12 April 2016
+--    1. MQM to modify alias . Permitted by Sec 4.2.3.4 e/1
+--    2. MQM to change + days syntax with date_add function . Permitted by Sec 4.2.3.4 f/1
 
 define YEAR = random(1999, 2002, uniform);
 define MONTH = random(2,5,uniform);
@@ -45,17 +48,17 @@ define COUNTY_E = distmember(fips_county, [COUNTYNUMBER.5], 2);
 define _LIMIT=100;
 
 [_LIMITA] select [_LIMITB] 
-   count(distinct cs_order_number) as "order count"
-  ,sum(cs_ext_ship_cost) as "total shipping cost"
-  ,sum(cs_net_profit) as "total net profit"
+   count(distinct cs_order_number) as order_count
+  ,sum(cs_ext_ship_cost) as total_shipping_cost
+  ,sum(cs_net_profit) as total_net_profit
 from
    catalog_sales cs1
   ,date_dim
   ,customer_address
   ,call_center
 where
-    d_date between '[YEAR]-[MONTH]-01' and 
-           (cast('[YEAR]-[MONTH]-01' as date) + 60 days)
+    d_date between cast('[YEAR]-[MONTH]-01' as date) and 
+           date_add(cast('[YEAR]-[MONTH]-01' as date), 60 )
 and cs1.cs_ship_date_sk = d_date_sk
 and cs1.cs_ship_addr_sk = ca_address_sk
 and ca_state = '[STATE]'

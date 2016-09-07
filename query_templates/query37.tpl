@@ -32,6 +32,8 @@
 -- 
 -- Contributors:
 -- 
+-- RRC 12 April 2016
+--        1. MQM to change + days syntax with date_add function . Permitted by Sec 4.2.3.4 f/1
  define YEAR=random(1998,2002,uniform);
  define INVDATE=date([YEAR]+"-01-01",[YEAR]+"-07-24",sales);
  define MANUFACT_ID=ulist(random(667,1000,uniform),4);
@@ -45,7 +47,7 @@
  where i_current_price between [PRICE] and [PRICE] + 30
  and inv_item_sk = i_item_sk
  and d_date_sk=inv_date_sk
- and d_date between cast('[INVDATE]' as date) and (cast('[INVDATE]' as date) +  60 days)
+ and d_date between cast('[INVDATE]' as date) and date_add(cast('[INVDATE]' as date), 60 )
  and i_manufact_id in ([MANUFACT_ID.1],[MANUFACT_ID.2],[MANUFACT_ID.3],[MANUFACT_ID.4])
  and inv_quantity_on_hand between 100 and 500
  and cs_item_sk = i_item_sk

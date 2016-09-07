@@ -32,6 +32,8 @@
 -- 
 -- Contributors:
 -- 
+-- RRC 12 April 2016
+--            1. MQM to change + days syntax with date_add function . Permitted by Sec 4.2.3.4 f/1
 
 define YEAR=random(1998, 2002, uniform);
 define _LIMIT = 100;
@@ -41,8 +43,8 @@ define MS= dist(marital_status, 1, 1);
 [_LIMITA] select [_LIMITB] i_item_desc
       ,w_warehouse_name
       ,d1.d_week_seq
-      ,count(case when p_promo_sk is null then 1 else 0 end) no_promo
-      ,count(case when p_promo_sk is not null then 1 else 0 end) promo
+      ,sum(case when p_promo_sk is null then 1 else 0 end) no_promo
+      ,sum(case when p_promo_sk is not null then 1 else 0 end) promo
       ,count(*) total_cnt
 from catalog_sales
 join inventory on (cs_item_sk = inv_item_sk)
@@ -57,12 +59,10 @@ left outer join promotion on (cs_promo_sk=p_promo_sk)
 left outer join catalog_returns on (cr_item_sk = cs_item_sk and cr_order_number = cs_order_number)
 where d1.d_week_seq = d2.d_week_seq
   and inv_quantity_on_hand < cs_quantity 
-  and d3.d_date > d1.d_date + 5
+  and d3.d_date > date_add(cast(d1.d_date as date),5)
   and hd_buy_potential = '[BP]'
   and d1.d_year = [YEAR]
-  and hd_buy_potential = '[BP]'
   and cd_marital_status = '[MS]'
-  and d1.d_year = [YEAR]
 group by i_item_desc,w_warehouse_name,d1.d_week_seq
 order by total_cnt desc, i_item_desc, w_warehouse_name, d_week_seq
 [_LIMITC];

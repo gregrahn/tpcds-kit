@@ -32,20 +32,21 @@
 -- 
 -- Contributors:
 -- 
- define COUNTY=random(1, rowcount("active_counties", "store"), uniform);
- define GMT=distmember(fips_county,[COUNTY], 6);
+-- RRC 12 April 2016
+--    1. MQM to add paranthesis around subquery . Permitted by Sec 4.2.3.4 g
+--    2. MQM to add alias. Permitted by Sec 4.2.3.4 e/1
  define YEAR=random(1998,2001,uniform);
   
  with wscs as
  (select sold_date_sk
         ,sales_price
-  from (select ws_sold_date_sk sold_date_sk
+  from  (select ws_sold_date_sk sold_date_sk
               ,ws_ext_sales_price sales_price
-        from web_sales) x
+        from web_sales 
         union all
-       (select cs_sold_date_sk sold_date_sk
+        select cs_sold_date_sk sold_date_sk
               ,cs_ext_sales_price sales_price
-        from catalog_sales)),
+        from catalog_sales) x ),
  wswscs as 
  (select d_week_seq,
         sum(case when (d_day_name='Sunday') then sales_price else null end) sun_sales,

@@ -32,22 +32,24 @@
 -- 
 -- Contributors:
 -- 
-define YEAR=random(1998,2002,uniform);
-define DMS = random(1176,1224,uniform); -- Qualification 1200
+-- RRC 12 April 2016
+--          1. MQM to modify alias . Permitted by Sec 4.2.3.4 e/1
+
+define DMS = random(1176,1224, uniform);
 define _LIMIT=100;
 
 [_LIMITA] select [_LIMITB] 
    substr(w_warehouse_name,1,20)
   ,sm_type
   ,cc_name
-  ,sum(case when (cs_ship_date_sk - cs_sold_date_sk <= 30 ) then 1 else 0 end)  as "30 days" 
+  ,sum(case when (cs_ship_date_sk - cs_sold_date_sk <= 30 ) then 1 else 0 end)  as 30_days 
   ,sum(case when (cs_ship_date_sk - cs_sold_date_sk > 30) and 
-                 (cs_ship_date_sk - cs_sold_date_sk <= 60) then 1 else 0 end )  as "31-60 days" 
+                 (cs_ship_date_sk - cs_sold_date_sk <= 60) then 1 else 0 end )  as 31_60_days
   ,sum(case when (cs_ship_date_sk - cs_sold_date_sk > 60) and 
-                 (cs_ship_date_sk - cs_sold_date_sk <= 90) then 1 else 0 end)  as "61-90 days" 
+                 (cs_ship_date_sk - cs_sold_date_sk <= 90) then 1 else 0 end)  as 61_90_days
   ,sum(case when (cs_ship_date_sk - cs_sold_date_sk > 90) and
-                 (cs_ship_date_sk - cs_sold_date_sk <= 120) then 1 else 0 end)  as "91-120 days" 
-  ,sum(case when (cs_ship_date_sk - cs_sold_date_sk  > 120) then 1 else 0 end)  as ">120 days" 
+                 (cs_ship_date_sk - cs_sold_date_sk <= 120) then 1 else 0 end)  as 91_120_days
+  ,sum(case when (cs_ship_date_sk - cs_sold_date_sk  > 120) then 1 else 0 end)  as above120_days
 from
    catalog_sales
   ,warehouse

@@ -32,6 +32,8 @@
 -- 
 -- Contributors:
 -- 
+-- RRC 12 April 2016
+--          1. MQM to change + days syntax with date_add function . Permitted by Sec 4.2.3.4 f/1 
  define YEAR = random(1998, 2002, uniform);
  define SALES_DATE=date([YEAR]+"-08-01",[YEAR]+"-08-30",sales);
  define _LIMIT=100;
@@ -45,7 +47,7 @@
       store
  where ss_sold_date_sk = d_date_sk
        and d_date between cast('[SALES_DATE]' as date) 
-                  and (cast('[SALES_DATE]' as date) +  30 days) 
+                  and date_add(cast('[SALES_DATE]' as date), 30 ) 
        and ss_store_sk = s_store_sk
  group by s_store_sk)
  ,
@@ -58,7 +60,7 @@
       store
  where sr_returned_date_sk = d_date_sk
        and d_date between cast('[SALES_DATE]' as date)
-                  and (cast('[SALES_DATE]' as date) +  30 days)
+                  and date_add(cast('[SALES_DATE]' as date),  30 )
        and sr_store_sk = s_store_sk
  group by s_store_sk), 
  cs as
@@ -69,18 +71,19 @@
       date_dim
  where cs_sold_date_sk = d_date_sk
        and d_date between cast('[SALES_DATE]' as date)
-                  and (cast('[SALES_DATE]' as date) +  30 days)
+                  and date_add(cast('[SALES_DATE]' as date), 30 )
  group by cs_call_center_sk 
  ), 
  cr as
- (select
-        sum(cr_return_amount) as returns,
-        sum(cr_net_loss) as profit_loss
+ (select cr_call_center_sk,
+         sum(cr_return_amount) as returns,
+         sum(cr_net_loss) as profit_loss
  from catalog_returns,
       date_dim
  where cr_returned_date_sk = d_date_sk
        and d_date between cast('[SALES_DATE]' as date)
-                  and (cast('[SALES_DATE]' as date) +  30 days)
+                  and date_add(cast('[SALES_DATE]' as date),  30 )
+ group by cr_call_center_sk
  ), 
  ws as
  ( select wp_web_page_sk,
@@ -91,7 +94,7 @@
       web_page
  where ws_sold_date_sk = d_date_sk
        and d_date between cast('[SALES_DATE]' as date)
-                  and (cast('[SALES_DATE]' as date) +  30 days)
+                  and date_add(cast('[SALES_DATE]' as date), 30 )
        and ws_web_page_sk = wp_web_page_sk
  group by wp_web_page_sk), 
  wr as
@@ -103,7 +106,7 @@
       web_page
  where wr_returned_date_sk = d_date_sk
        and d_date between cast('[SALES_DATE]' as date)
-                  and (cast('[SALES_DATE]' as date) +  30 days)
+                  and date_add(cast('[SALES_DATE]' as date), 30 )
        and wr_web_page_sk = wp_web_page_sk
  group by wp_web_page_sk)
  [_LIMITA] select [_LIMITB] channel

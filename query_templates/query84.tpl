@@ -32,12 +32,14 @@
 -- 
 -- Contributors:
 -- 
+-- RRC 12 April 2016
+--        1. MQM to change string concat operator || with concat function . Permitted by Sec 4.2.3.4 c/2
  define CITY = dist(cities, 1, large);
  define INCOME = random(0, 70000, uniform);
  define _LIMIT=100;
  
  [_LIMITA] select [_LIMITB] c_customer_id as customer_id
-       ,c_last_name || ', ' || c_first_name as customername
+       ,concat(c_last_name , ', ' , coalesce(c_first_name,'')) as customername
  from customer
      ,customer_address
      ,customer_demographics

@@ -32,13 +32,15 @@
 -- 
 -- Contributors:
 -- 
-
-define IMID  = random(1,1000,uniform); -- 255 for qualification
+-- RRC 12 April 2016
+--        1. MQM to modify alias . Permitted by Sec 4.2.3.4 e/1
+--        2. MQM to change + days syntax with date_add function . Permitted by Sec 4.2.3.4 f/1
+define IMID  = random(1,1000,uniform); 
 define YEAR  = random(1998,2002,uniform);
 define CSDATE = date([YEAR]+"-01-01",[YEAR]+"-04-01",sales);
 define _LIMIT=100;
 
-[_LIMITA] select [_LIMITB] sum(cs_ext_discount_amt)  as "excess discount amount" 
+[_LIMITA] select [_LIMITB] sum(cs_ext_discount_amt)  as excess_discount_amount
 from 
    catalog_sales 
    ,item 
@@ -47,7 +49,7 @@ where
 i_manufact_id = [IMID]
 and i_item_sk = cs_item_sk 
 and d_date between '[CSDATE]' and 
-        (cast('[CSDATE]' as date) + 90 days)
+        date_add(cast('[CSDATE]' as date), 90 )
 and d_date_sk = cs_sold_date_sk 
 and cs_ext_discount_amt  
      > ( 
@@ -59,7 +61,7 @@ and cs_ext_discount_amt
          where 
               cs_item_sk = i_item_sk 
           and d_date between '[CSDATE]' and
-                             (cast('[CSDATE]' as date) + 90 days)
+                             date_add(cast('[CSDATE]' as date), 90 )
           and d_date_sk = cs_sold_date_sk 
       ) 
 [_LIMITC]; 

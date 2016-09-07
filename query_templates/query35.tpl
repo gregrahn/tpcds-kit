@@ -32,16 +32,18 @@
 -- 
 -- Contributors:
 -- 
+
  define YEAR=random(1999,2002,uniform);
- define AGGONE= text({"sum",1},{"min",1},{"max",1},{"avg",1},{"stddev_samp",1}); -- for qualification min
- define AGGTWO= text({"sum",1},{"min",1},{"max",1},{"avg",1},{"stddev_samp",1}); -- for qualification max
- define AGGTHREE= text({"sum",1},{"min",1},{"max",1},{"avg",1},{"stddev_samp",1}); -- for qualification avg
+ define AGGONE= text({"sum",1},{"min",1},{"max",1},{"avg",1},{"stddev_samp",1}); 
+ define AGGTWO= text({"sum",1},{"min",1},{"max",1},{"avg",1},{"stddev_samp",1}); 
+ define AGGTHREE= text({"sum",1},{"min",1},{"max",1},{"avg",1},{"stddev_samp",1}); 
  define _LIMIT=100;
  
  [_LIMITA] select [_LIMITB]  
   ca_state,
   cd_gender,
   cd_marital_status,
+  cd_dep_count,
   count(*) cnt1,
   [AGGONE](cd_dep_count),
   [AGGTWO](cd_dep_count),

@@ -32,8 +32,7 @@
 -- 
 -- Contributors:
 -- 
- define YEAR=random(1998,2002,uniform);
- define DMS = random(1176,1224,uniform); -- Qualification: 1176
+ define DMS = random(1176,1224,uniform);
  define _LIMIT=100; 
  [_LIMITA] select [_LIMITB]  
     sum(ws_net_paid) as total_sum

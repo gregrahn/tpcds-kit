@@ -34,7 +34,6 @@
 -- 
   define YEAR= random(1998, 2002, uniform);
  define MONTH=random(11,12,uniform);
- define MANAGER=random(1,100,uniform);
 
  select i_brand_id brand_id, i_brand brand,t_hour,t_minute,
  	sum(ext_price) ext_price
@@ -64,7 +63,7 @@
                  where d_date_sk = ss_sold_date_sk
                    and d_moy=[MONTH]
                    and d_year=[YEAR]
-                 ) as tmp,time_dim
+                 ) tmp,time_dim
  where
    sold_item_sk = i_item_sk
    and i_manager_id=1

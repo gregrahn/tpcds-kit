@@ -32,6 +32,8 @@
 -- 
 -- Contributors:
 -- 
+-- RRC 25 April 2016
+--           1. MQM to modify alias . Permitted by Sec 4.2.3.4 e/1
  define DEPCNT=random(0,9,uniform);
  define HOUR_AM = random(6,12,uniform);
  define HOUR_PM = random(13,21,uniform);
@@ -45,7 +47,7 @@
          and ws_web_page_sk = web_page.wp_web_page_sk
          and time_dim.t_hour between [HOUR_AM] and [HOUR_AM]+1
          and household_demographics.hd_dep_count = [DEPCNT]
-         and web_page.wp_char_count between 5000 and 5200) at,
+         and web_page.wp_char_count between 5000 and 5200) at1,
       ( select count(*) pmc
        from web_sales, household_demographics , time_dim, web_page
        where ws_sold_time_sk = time_dim.t_time_sk

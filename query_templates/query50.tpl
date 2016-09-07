@@ -32,6 +32,8 @@
 -- 
 -- Contributors:
 -- 
+-- RRC 12 April 2016
+--             1.  MQM to add alias. Permitted by Sec 4.2.3.4 e/1
 
 define YEAR = random(1998,2002,uniform);
 define MONTH = random(8,10,uniform);
@@ -48,14 +50,14 @@ define _LIMIT=100;
   ,s_county
   ,s_state
   ,s_zip
-  ,sum(case when (sr_returned_date_sk - ss_sold_date_sk <= 30 ) then 1 else 0 end)  as "30 days" 
+  ,sum(case when (sr_returned_date_sk - ss_sold_date_sk <= 30 ) then 1 else 0 end)  as 30_days 
   ,sum(case when (sr_returned_date_sk - ss_sold_date_sk > 30) and 
-                 (sr_returned_date_sk - ss_sold_date_sk <= 60) then 1 else 0 end )  as "31-60 days" 
+                 (sr_returned_date_sk - ss_sold_date_sk <= 60) then 1 else 0 end )  as 31_60_days 
   ,sum(case when (sr_returned_date_sk - ss_sold_date_sk > 60) and 
-                 (sr_returned_date_sk - ss_sold_date_sk <= 90) then 1 else 0 end)  as "61-90 days" 
+                 (sr_returned_date_sk - ss_sold_date_sk <= 90) then 1 else 0 end)  as 61_90_days 
   ,sum(case when (sr_returned_date_sk - ss_sold_date_sk > 90) and
-                 (sr_returned_date_sk - ss_sold_date_sk <= 120) then 1 else 0 end)  as "91-120 days" 
-  ,sum(case when (sr_returned_date_sk - ss_sold_date_sk  > 120) then 1 else 0 end)  as ">120 days" 
+                 (sr_returned_date_sk - ss_sold_date_sk <= 120) then 1 else 0 end)  as 91_120_days
+  ,sum(case when (sr_returned_date_sk - ss_sold_date_sk  > 120) then 1 else 0 end)  as above120_days
 from
    store_sales
   ,store_returns

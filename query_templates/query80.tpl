@@ -32,6 +32,9 @@
 -- 
 -- Contributors:
 -- 
+-- RRC 12 April 2016
+--          1. MQM to change + days syntax with date_add function . Permitted by Sec 4.2.3.4 f/1
+--          2. MQM to change string concat operator || with concat function . Permitted by Sec 4.2.3.4 c/2
  define YEAR = random(1998, 2002, uniform);
  define SALES_DATE=date([YEAR]+"-08-01",[YEAR]+"-08-30",sales);
  define _LIMIT=100; 
@@ -49,7 +52,7 @@
      promotion
  where ss_sold_date_sk = d_date_sk
        and d_date between cast('[SALES_DATE]' as date) 
-                  and (cast('[SALES_DATE]' as date) +  30 days)
+                  and date_add(cast('[SALES_DATE]' as date), 30 )
        and ss_store_sk = s_store_sk
        and ss_item_sk = i_item_sk
        and i_current_price > 50
@@ -70,7 +73,7 @@
      promotion
  where cs_sold_date_sk = d_date_sk
        and d_date between cast('[SALES_DATE]' as date)
-                  and (cast('[SALES_DATE]' as date) +  30 days)
+                  and date_add(cast('[SALES_DATE]' as date), 30 )
         and cs_catalog_page_sk = cp_catalog_page_sk
        and cs_item_sk = i_item_sk
        and i_current_price > 50
@@ -91,7 +94,7 @@ group by cp_catalog_page_id)
      promotion
  where ws_sold_date_sk = d_date_sk
        and d_date between cast('[SALES_DATE]' as date)
-                  and (cast('[SALES_DATE]' as date) +  30 days)
+                  and date_add(cast('[SALES_DATE]' as date),  30 )
         and ws_web_site_sk = web_site_sk
        and ws_item_sk = i_item_sk
        and i_current_price > 50
@@ -105,21 +108,21 @@ group by web_site_id)
         , sum(profit) as profit
  from 
  (select 'store channel' as channel
-        , 'store' || store_id as id
+        , concat( 'store' , store_id )  as id
         , sales
         , returns
         , profit
  from   ssr
  union all
  select 'catalog channel' as channel
-        , 'catalog_page' || catalog_page_id as id
+        , concat( 'catalog_page' , catalog_page_id ) as id
         , sales
         , returns
         , profit
  from  csr
  union all
  select 'web channel' as channel
-        , 'web_site' || web_site_id as id
+        , concat( 'web_site' , web_site_id )  as id
         , sales
         , returns
         , profit

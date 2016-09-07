@@ -33,7 +33,10 @@
 -- Contributors:
 -- 
 define YEAR=random(1998,2001,uniform);
-define SELECTCONE= text({"t_s_secyear.customer_id",1},{"t_s_secyear.customer_first_name",1},{"t_s_secyear.customer_last_name",1},{"t_s_secyear.customer_preferred_cust_flag",1},{"t_s_secyear.customer_birth_country",1},{"t_s_secyear.customer_login",1},{"t_s_secyear.customer_email_address",1},{"t_s_secyear.customer_id,t_s_secyear.customer_first_name,t_s_secyear.customer_last_name,t_s_secyear.c_preferred_cust_flag,t_s_secyear.c_birth_country,t_s_secyear.c_login,t_s_secyear.c_email_address",1});
+define SELECTONE= text({"t_s_secyear.customer_preferred_cust_flag",1}
+                       ,{"t_s_secyear.customer_birth_country",1}
+                       ,{"t_s_secyear.customer_login",1}
+                       ,{"t_s_secyear.customer_email_address",1});
 define _LIMIT=100;
 
 with year_total as (
@@ -109,7 +112,11 @@ union all
          ,c_email_address
          ,d_year
          )
-[_LIMITA]  select [_LIMITB] [SELECTCONE]
+[_LIMITA]  select [_LIMITB] 
+                  t_s_secyear.customer_id
+                 ,t_s_secyear.customer_first_name
+                 ,t_s_secyear.customer_last_name
+                 ,[SELECTONE]
  from year_total t_s_firstyear
      ,year_total t_s_secyear
      ,year_total t_c_firstyear
@@ -140,5 +147,8 @@ union all
            > case when t_s_firstyear.year_total > 0 then t_s_secyear.year_total / t_s_firstyear.year_total else null end
    and case when t_c_firstyear.year_total > 0 then t_c_secyear.year_total / t_c_firstyear.year_total else null end
            > case when t_w_firstyear.year_total > 0 then t_w_secyear.year_total / t_w_firstyear.year_total else null end
- order by [SELECTCONE]
+ order by t_s_secyear.customer_id
+         ,t_s_secyear.customer_first_name
+         ,t_s_secyear.customer_last_name
+         ,[SELECTONE]
 [_LIMITC];

@@ -33,13 +33,8 @@
 -- Contributors:
 -- 
 
-define CATEGORY = text({"Books",1},{"Home",1},{"Electronics",1},{"Jewelry",1},{"Sports",1});
 define MONTH = random(1,4,uniform);
 Define YEAR = random(1998,2002, uniform);
-define STATENUMBER=ulist(random(1, rowcount("active_states", "warehouse"), uniform),3);
-define STATEA=distmember(fips_county,[STATENUMBER.1], 3);
-define STATEB=distmember(fips_county,[STATENUMBER.2], 3);
-define STATEC=distmember(fips_county,[STATENUMBER.3], 3);
 
 
 
