@@ -138,22 +138,14 @@ tdef *pT = getSimpleTdefsByNumber(STORE_SALES);
 	/** 
 	* having gone to the trouble to make the sale, now let's see if it gets returned
 	*/
-	
-	/**
-	 * hack to print to stdout when there is a sales/returns combo
-	 * skip the returns since we can't send two tables to stdout at the same time
-	 * TODO: add logic to generate the returns tables to stdout on their own
-	 */	
-	if (!is_set("FILTER"))
+	genrand_integer(&nTemp, DIST_UNIFORM, 0, 99, 0, SR_IS_RETURNED);
+	if (nTemp < SR_RETURN_PCT)
 	{
-    genrand_integer(&nTemp, DIST_UNIFORM, 0, 99, 0, SR_IS_RETURNED);
-    if (nTemp < SR_RETURN_PCT)
-    {
-      mk_w_store_returns(&ReturnRow, 1);
+		mk_w_store_returns(&ReturnRow, 1);
       if (bPrint)
-        pr_w_store_returns(&ReturnRow);
-    }  	
-  }
+         pr_w_store_returns(&ReturnRow);
+	}
+
    if (bPrint)
       pr_w_store_sales(NULL);
 	

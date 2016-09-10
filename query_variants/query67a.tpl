@@ -32,8 +32,8 @@
 -- 
 -- Contributors:
 -- 
- define YEAR = random(1998, 2002, uniform);
-define _LIMIT=100;
+ define DMS = random(1176,1224,uniform);
+ define _LIMIT=100;
 
 with results as
 (     select i_category ,i_class ,i_brand ,i_product_name ,d_year ,d_qoy ,d_moy ,s_store_id
@@ -42,7 +42,7 @@ with results as
        where  ss_sold_date_sk=d_date_sk
           and ss_item_sk=i_item_sk
           and ss_store_sk = s_store_sk
-          and d_year=[YEAR]
+          and d_month_seq between [DMS] and [DMS] + 11
        group by i_category, i_class, i_brand, i_product_name, d_year, d_qoy, d_moy,s_store_id)
  ,
  results_rollup as

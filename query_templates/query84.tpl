@@ -37,7 +37,7 @@
  define _LIMIT=100;
  
  [_LIMITA] select [_LIMITB] c_customer_id as customer_id
-       ,c_last_name || ', ' || c_first_name as customername
+       , coalesce(c_last_name,'') || ', ' || coalesce(c_first_name,'') as customername
  from customer
      ,customer_address
      ,customer_demographics

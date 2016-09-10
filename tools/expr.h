@@ -54,6 +54,7 @@ typedef struct EXPR_T
 	Expr_Val_t Value;
 	int nValueCount;
 	int *pPermute;
+	ds_key_t *pPermuteKey;
 	int nSubElement;
 } expr_t;
 

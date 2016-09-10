@@ -35,7 +35,7 @@
 
 define YEAR = random(1999, 2002, uniform);
 define MONTH = random(2,5,uniform);
-define STATE = dist(fips_county,3,1);    -- qualification: az
+define STATE = dist(fips_county,3,1);
 define _LIMIT=100;
 
 with ws_wh as

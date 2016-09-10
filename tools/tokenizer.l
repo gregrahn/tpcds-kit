@@ -47,9 +47,7 @@
 #else
 #include <strings.h>
 #endif
-#ifndef USE_STDLIB_H
 #include <malloc.h>
-#endif
 #include "keywords.h"
 #include "StringBuffer.h"
 #include "expr.h"

@@ -33,10 +33,11 @@
 -- Contributors:
 -- 
 define COUNTY = random(1, rowcount("active_counties", "store"), uniform);
-define STATE = distmember(fips_county, [COUNTY], 3); -- qualification params ca
+define STATE = distmember(fips_county, [COUNTY], 3); 
 define YEAR = random(1998, 2002, uniform);
 define AGG_FIELD = text({"SR_RETURN_AMT",1},{"SR_FEE",1},{"SR_REFUNDED_CASH",1},{"SR_RETURN_AMT_INC_TAX",1},{"SR_REVERSED_CHARGE",1},{"SR_STORE_CREDIT",1},{"SR_RETURN_TAX",1});
 define _LIMIT=100;
+
 with customer_total_return as
 (select sr_customer_sk as ctr_customer_sk
 ,sr_store_sk as ctr_store_sk

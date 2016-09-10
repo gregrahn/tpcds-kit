@@ -86,3 +86,47 @@ makePermutation(int *nNumberSet, int nSize, int nStream)
 	return(nNumberSet);
 }
 
+/*
+* Routine: MakePermutation(int nSize)
+* Purpose: Permute the integers in [1..nSize]
+* Algorithm:
+* Data Structures:
+*
+* Params:
+* Returns:
+* Called By: 
+* Calls: 
+* Assumptions:
+* Side Effects:
+* TODO: None
+*/
+ds_key_t *
+makeKeyPermutation(ds_key_t *nNumberSet, ds_key_t nSize, int nStream)
+{
+	ds_key_t i,
+		nTemp,
+		nIndex,
+		*pInt;
+	if (nSize <= 0)
+		return(NULL);
+
+	if (!nNumberSet)
+	{
+		nNumberSet = (ds_key_t *)malloc(nSize * sizeof(ds_key_t));
+		MALLOC_CHECK(nNumberSet);
+		pInt = nNumberSet;
+		for (i=0; i < nSize; i++)
+			*pInt++ = i;
+	}
+
+	for (i=0; i < nSize; i++)
+	{
+		nIndex = genrand_key(NULL, DIST_UNIFORM, 0, nSize - 1, 0, nStream);
+		nTemp = nNumberSet[i];
+		nNumberSet[i] = nNumberSet[nIndex];
+		nNumberSet[nIndex] = nTemp;
+	}
+
+	return(nNumberSet);
+}
+

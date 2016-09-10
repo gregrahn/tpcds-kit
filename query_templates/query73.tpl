@@ -33,17 +33,13 @@
 -- Contributors:
 -- 
  define BPONE= text({"1001-5000",1},{">10000",1},{"501-1000",1});
- define BPTWO= text({"0-500",1},{"unknown",1},{"5001-10000",1});
+ define BPTWO= text({"0-500",1},{"Unknown",1},{"5001-10000",1});
  define YEAR= random(1998, 2000, uniform);
  define COUNTYNUMBER=ulist(random(1, rowcount("active_counties", "store"), uniform),8);
  define COUNTY_A=distmember(fips_county, [COUNTYNUMBER.1], 2);
  define COUNTY_B=distmember(fips_county, [COUNTYNUMBER.2], 2);
  define COUNTY_C=distmember(fips_county, [COUNTYNUMBER.3], 2);
  define COUNTY_D=distmember(fips_county, [COUNTYNUMBER.4], 2);
- define COUNTY_E=distmember(fips_county, [COUNTYNUMBER.5], 2);
- define COUNTY_F=distmember(fips_county, [COUNTYNUMBER.6], 2);
- define COUNTY_G=distmember(fips_county, [COUNTYNUMBER.7], 2);
- define COUNTY_H=distmember(fips_county, [COUNTYNUMBER.8], 2);
  
  select c_last_name
        ,c_first_name
@@ -69,5 +65,5 @@
     group by ss_ticket_number,ss_customer_sk) dj,customer
     where ss_customer_sk = c_customer_sk
       and cnt between 1 and 5
-    order by cnt desc;
+    order by cnt desc, c_last_name asc;
 

@@ -87,7 +87,7 @@
  	,sum(nov_net) as nov_net
  	,sum(dec_net) as dec_net
  from (
-    (select 
+     select 
  	w_warehouse_name
  	,w_warehouse_sq_ft
  	,w_city
@@ -166,9 +166,8 @@
  	,w_state
  	,w_country
        ,d_year
- 	)
  union all
-    (select 
+     select 
  	w_warehouse_name
  	,w_warehouse_sq_ft
  	,w_city
@@ -247,7 +246,6 @@
  	,w_state
  	,w_country
        ,d_year
-     ) 
  ) x
  group by 
         w_warehouse_name
