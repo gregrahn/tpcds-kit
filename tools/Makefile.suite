@@ -228,7 +228,7 @@ TESTS =		tests/*.sh tests/*.sql
 ANS = 		answer_sets/*.ans
 QUERY_SRC = $(FQD) $(VARIANTS)
 TREE_DOC =
-JUNK	= tags *.idx tables.h streams.h columns.h y.tab.h y.tab.c tokenizer.c  \
+JUNK	= tags *.idx columns.h streams.h tables.h y.tab.h y.tab.c tokenizer.c  \
 	y.output .ctags_updated tpcds.idx.h
 DBGENSRC	= $(SRC) $(HDR) $(OTHER) $(DOC) $(DDL) $(IDXSRC) $(WIN_MAKE) $(QUERY_SRC) $(TESTS) $(ANS)
 GENERATED	= tables.h streams.h columns.h
@@ -257,10 +257,10 @@ clean:
 current_source:
 	cvs update
 depend: $(SRC) $(HDR)
-	touch tables.h streams.h columns.h
+	touch columns.h streams.h tables.h
 	-makedepend -f Makefile.suite -Y -- $(CFLAGS) -- $(SRC) 2> /dev/null
 	date > .depend_updated
-	rm -f tables.h streams.h columns.h
+	rm -f columns.h streams.h tables.h
 lint:
 	lint $(CFLAGS) -u -x -wO -p $(SRC1)
 	lint $(CFLAGS) -u -x -wO -p $(SRC2)

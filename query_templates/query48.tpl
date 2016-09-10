@@ -56,9 +56,9 @@
   (
   cd_demo_sk = ss_cdemo_sk
    and 
-   cd_marital_status = '[MS.1]'
+   cd_marital_status = '[MS.2]'
    and 
-   cd_education_status = '[ES.1]'
+   cd_education_status = '[ES.2]'
    and 
    ss_sales_price between 50.00 and 100.00   
   )
@@ -66,9 +66,9 @@
  (
   cd_demo_sk = ss_cdemo_sk
   and 
-   cd_marital_status = '[MS.1]'
+   cd_marital_status = '[MS.3]'
    and 
-   cd_education_status = '[ES.1]'
+   cd_education_status = '[ES.3]'
    and 
    ss_sales_price between 150.00 and 200.00  
  )

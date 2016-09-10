@@ -33,8 +33,9 @@
 -- Contributors:
 -- 
  define YEAR=random(1999,2001,uniform);
- define SELECTCONE= text({"v1.i_category",1},{"v1.i_brand",1},{"v1.i_category, v1.i_brand",1},{"v1.cc_name",1},{"v1.i_category, v1.i_brand, v1.cc_name",1}); -- for qualification v1.i_category, v1.i_brand, v1.cc_name
- define SELECTCTWO= text({",v1.d_year",1},{",v1.d_year, v1.d_moy",1}); -- for qualification ,v1.d_year, v1.d_moy
+ define SELECTONE= text({"v1.i_category",1},{"v1.i_brand",1},{"v1.i_category, v1.i_brand",1},{"v1.cc_name",1},{"v1.i_category, v1.i_brand, v1.cc_name",1}); 
+ define SELECTTWO= text({",v1.d_year",1},{",v1.d_year, v1.d_moy",1}); 
+
  define _LIMIT=100;
 
  with v1 as(
@@ -62,8 +63,8 @@
  group by i_category, i_brand,
           cc_name , d_year, d_moy),
  v2 as(
- select [SELECTCONE]
-        [SELECTCTWO]
+ select [SELECTONE]
+        [SELECTTWO]
         ,v1.avg_monthly_sales
         ,v1.sum_sales, v1_lag.sum_sales psum, v1_lead.sum_sales nsum
  from v1, v1 v1_lag, v1 v1_lead

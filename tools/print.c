@@ -480,14 +480,15 @@ print_start (int tbl)
 		   pTdef->outfile = fopen (path, "w");
 #endif
 	   }
-     fpOutfile = pTdef->outfile;
    }
    
+   fpOutfile = pTdef->outfile;
    res = (fpOutfile != NULL);
 
    if (!res)                    /* open failed! */
      {
         INTERNAL ("Failed to open output file!");
+	exit(0);
      }
 #ifdef WIN32
    else if (setvbuf (fpOutfile, NULL, _IOFBF, 32767))

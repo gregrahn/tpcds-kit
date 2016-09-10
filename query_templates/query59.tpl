@@ -32,8 +32,7 @@
 -- 
 -- Contributors:
 -- 
- define YEAR=random(1998,2001,uniform);
- define DMS = random(1176,1212,uniform); -- Qualification: 1212
+ define DMS = random(1176,1212,uniform);
  define _LIMIT=100;
  
  with wss as 

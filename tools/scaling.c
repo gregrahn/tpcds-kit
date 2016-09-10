@@ -290,9 +290,11 @@ get_rowcount(int table)
 				arRowcount[nTable].kBaseRowcount = dist_weight(NULL, "rowcounts", nTable + nRowcountOffset  + 1, 5);
 				break;
 			case 300:
+				nBadScale = QERR_BAD_SCALE;
 				arRowcount[nTable].kBaseRowcount = dist_weight(NULL, "rowcounts", nTable + nRowcountOffset  + 1, 4);
 				break;
 			case 100:
+				nBadScale = QERR_BAD_SCALE;
 				arRowcount[nTable].kBaseRowcount = dist_weight(NULL, "rowcounts", nTable + nRowcountOffset  + 1, 3);
 				break;
 			case 10:

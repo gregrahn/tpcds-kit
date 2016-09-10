@@ -35,7 +35,7 @@
  define MS= ulist(dist(marital_status, 1, 1), 3);
  define ES= ulist(dist(education, 1, 1), 3);
  define STATE= ulist(dist(fips_county, 3, 1), 9);
- define YEAR= random(1998,2002, uniform);
+ 
 
  select avg(ss_quantity)
        ,avg(ss_ext_sales_price)

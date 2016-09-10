@@ -32,7 +32,7 @@
 -- 
 -- Contributors:
 -- 
- define YEAR=random(1998,2002,uniform);
+ define DMS = random(1176,1224,uniform);
  define _LIMIT=100;
  
  with results as
@@ -42,7 +42,7 @@
    ,date_dim       d1
    ,item
  where
-    d1.d_year = [YEAR]
+    d1.d_month_seq between [DMS] and [DMS]+11
  and d1.d_date_sk = ws_sold_date_sk
  and i_item_sk  = ws_item_sk
  group by i_category,i_class

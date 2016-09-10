@@ -34,5 +34,6 @@
  * Gradient Systems
  */ 
 int *makePermutation(int *pNumberSet, int nSize, int nStream);
+ds_key_t *makeKeyPermutation(ds_key_t *pNumberSet, ds_key_t nSize, int nStream);
 #define getPermutationEntry(pPermutation, nIndex) 	(pPermutation[nIndex - 1] + 1)
 

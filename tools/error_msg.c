@@ -78,7 +78,7 @@ err_msg_t Errors[MAX_ERROR + 2] = {
 	{EFLG_NO_ARG, "More than 20 arguments in definition"},
 	{EFLG_NO_ARG, "Argument type mismatch"},
 	{EFLG_NO_ARG, "RANGE()/LIST()/ULIST() cannot be used in the same expression"},		/* QERR_RANGE_LIST */
-	{EFLG_NO_ARG, "Selected volume is NOT valid for result publication"},
+	{EFLG_NO_ARG, "Selected scale factor is NOT valid for result publication"},
 	{EFLG_STR_ARG, "Parameter setting failed for '%s'"},
 	{EFLG_STR_ARG, "Table %s is being joined without an explicit rule"},
 	{EFLG_STR_ARG, "Table %s is not yet fully defined"},

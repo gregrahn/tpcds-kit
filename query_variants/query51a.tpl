@@ -32,7 +32,7 @@
 -- 
 -- Contributors:
 -- 
-define YEAR = random(1998, 2002, uniform);
+define DMS = random(1176,1224,uniform);
 define _LIMIT=100;
 
 WITH web_tv as (
@@ -43,7 +43,7 @@ select
 from web_sales
     ,date_dim
 where ws_sold_date_sk=d_date_sk
-  and d_year= [YEAR]
+  and d_month_seq between [DMS] and [DMS]+11
   and ws_item_sk is not NULL
 group by ws_item_sk, d_date
 ),
@@ -61,7 +61,7 @@ select
 from store_sales
     ,date_dim
 where ss_sold_date_sk=d_date_sk
-  and d_year= [YEAR]
+  and d_month_seq between [DMS] and [DMS]+11
   and ss_item_sk is not NULL
 group by ss_item_sk, d_date
 ),
@@ -83,11 +83,12 @@ select item_sk
                  ,store.cume_sales store_sales
            from web_v1 web full outer join store_v1 store on (web.item_sk = store.item_sk
                                                           and web.d_date = store.d_date)
-          ) sq
+          )
 )
 [_LIMITA] select [_LIMITB] *
 from(
-        select v1.item_sk, v1.d_date, v1.web_sales, v1.store_sales, max(v2.web_sales) web_cumulative, max(v2.store_sales) store_cumulative
+        select v1.item_sk, v1.d_date, v1.web_sales, v1.store_sales, max(v2.web_sales) web_cumulative, max(v2.store_sales) s
+tore_cumulative
         from v v1, v v2
         where v1.item_sk = v2.item_sk and v1.rk >= v2.rk
         group by v1.item_sk, v1.d_date, v1.web_sales, v1.store_sales

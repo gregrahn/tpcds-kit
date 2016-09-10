@@ -33,8 +33,9 @@
 -- Contributors:
 -- 
  define YEAR=random(1998,2001,uniform);
- define AGGONE= text({"sum",1},{"min",1},{"max",1},{"avg",1},{"max",1},{"stddev_samp",1}); -- for qualification sum
- define ORDERC=ulist(random(1,3,uniform),3); -- for qualification 1 1 1
+ define AGGONE= text({"sum",1},{"min",1},{"max",1},{"avg",1},{"max",1},{"stddev_samp",1}); 
+ define ORDERC=ulist(random(1,3,uniform),3); 
+
  define _LIMIT=100;
  
  with year_total as (

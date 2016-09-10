@@ -74,7 +74,7 @@ EvalArithmetic(expr_t *pExpr, Expr_Val_t *pValue, Expr_Val_t *pParams)
 {
 	int nOp;
 	char szInteger[16];
-	
+
 	nOp = (int)pExpr->Value.nValue;
 
 	switch(nOp)
@@ -138,7 +138,7 @@ int
 EvalTextExpr(expr_t *pExpr, Expr_Val_t *pBuf, Expr_Val_t *pParams, int bIsParam)
 {
 	int i,
-       j,
+		j,
 		nWeightTotal = 0,
 		nModifierArg;
 	expr_t *pReplacement;
@@ -151,13 +151,13 @@ EvalTextExpr(expr_t *pExpr, Expr_Val_t *pBuf, Expr_Val_t *pParams, int bIsParam)
 		nModifierArg = (int)pParams[1].nValue;
 		for (i=0; i < nModifierArg; i++)
 		{
-         genrand_integer(&j, DIST_UNIFORM, 1, length(pExpr->ArgList), 0, 0);
+			genrand_integer(&j, DIST_UNIFORM, 1, length(pExpr->ArgList), 0, 0);
 			pReplacement = getItem(pExpr->ArgList, j);
 			AddBuffer(pBuf[i].pBuf, GetBuffer(pReplacement->Value.pBuf));
 			pBuf[i].bUseInt = 0;
 		}
 		break;
-	case EXPR_FL_ULIST:	/* return a unique set of values */
+	case EXPR_FL_ULIST:     /* return a unique set of values */
 		if (bIsParam)
 			ReportError(QERR_MODIFIED_PARAM, NULL, 1);
 		nModifierArg = (int)pParams[1].nValue;
@@ -217,19 +217,19 @@ EvalTextExpr(expr_t *pExpr, Expr_Val_t *pBuf, Expr_Val_t *pParams, int bIsParam)
 int
 EvalRandomExpr(expr_t *pExpr, Expr_Val_t *pBuf, Expr_Val_t *pParams, int bIsParam)
 {
-	int nMin,
+	ds_key_t nMin,
 		nMax,
-		nModifierArg,
-		i,j,
-		nDirection,
 		nTotal,
-		nDistribution,
-      nTemp;
+      		nTemp;
+	int nModifierArg,
+		i,
+		nDirection,
+		nDistribution;
 	
-	nMin = (int)pParams->nValue;
-	nMax = (int)pParams[1].nValue;
+	nMin = pParams->nValue;
+	nMax = pParams[1].nValue;
 	nDistribution = (int)pParams[2].nValue;
-	
+
 	switch (pExpr->nFlags & EXPR_FL_SUFFIX_MASK)
 	{
 	case EXPR_FL_LIST:	/* return a set of unique values */
@@ -238,8 +238,8 @@ EvalRandomExpr(expr_t *pExpr, Expr_Val_t *pBuf, Expr_Val_t *pParams, int bIsPara
 		nModifierArg = (int)pParams[3].nValue;
 		for (i = 0; i < nModifierArg; i++)
 		{
-         genrand_integer(&j, DIST_UNIFORM, nMin, nMax, 0, 0);
-			pBuf[i].nValue = (j % (nMax - nMin + 1)) + nMin;
+			genrand_key(&nTemp, DIST_UNIFORM, nMin, nMax, 0, 0);
+			pBuf[i].nValue = (nTemp % (nMax - nMin + 1)) + nMin;
 			pBuf[i].bUseInt = 1;
 		}
 		break;
@@ -247,14 +247,14 @@ EvalRandomExpr(expr_t *pExpr, Expr_Val_t *pBuf, Expr_Val_t *pParams, int bIsPara
 		if (bIsParam)
 			ReportError(QERR_MODIFIED_PARAM, NULL, 1);
 		nModifierArg = (int)pParams[3].nValue;
-		pExpr->pPermute = makePermutation(pExpr->pPermute, nMax - nMin + 1, 0);
-      /* 
-       * the permutation is controlled by the number of values that are needed
-       * once it is populated, than adjust the returned result based on the range of values that is permissible
-       */
+		pExpr->pPermuteKey = makeKeyPermutation(pExpr->pPermuteKey, nMax - nMin + 1, 0);
+		/* 
+		 * the permutation is controlled by the number of values that are needed
+		 * once it is populated, than adjust the returned result based on the range of values that is permissible
+		 */
 		for (i = 0; i < nModifierArg; i++)
 		{
-			pBuf[i].nValue = (getPermutationEntry(pExpr->pPermute, i + 1) % (nMax - nMin + 1)) + nMin;
+			pBuf[i].nValue = (getPermutationEntry(pExpr->pPermuteKey, i + 1) % (nMax - nMin + 1)) + nMin;
 			pBuf[i].bUseInt = 1;
 		}
 		break;
@@ -263,7 +263,7 @@ EvalRandomExpr(expr_t *pExpr, Expr_Val_t *pBuf, Expr_Val_t *pParams, int bIsPara
 			ReportError(QERR_MODIFIED_PARAM, NULL, 1);
 		nModifierArg = (int)pParams[3].nValue;
 		
-		genrand_integer(&nTemp, DIST_UNIFORM, nMin, nMax, nDistribution, 0);
+		genrand_key(&nTemp, DIST_UNIFORM, nMin, nMax, nDistribution, 0);
       pBuf->nValue = nTemp;
 		pBuf->bUseInt = 1;
 		pBuf[1].nValue = pBuf->nValue;
@@ -280,7 +280,7 @@ EvalRandomExpr(expr_t *pExpr, Expr_Val_t *pBuf, Expr_Val_t *pParams, int bIsPara
 			{
 				pBuf[1].nValue += 1;
 				nTotal -= 1;
-				if ((int)pBuf[1].nValue == nMax)
+				if (pBuf[1].nValue == nMax)
 					nDirection = -1;
 			}
 			else
@@ -296,13 +296,13 @@ EvalRandomExpr(expr_t *pExpr, Expr_Val_t *pBuf, Expr_Val_t *pParams, int bIsPara
 		ReportError(QERR_RANGE_LIST, NULL, 1);
 		break;
 	default:
-		genrand_integer(&nTemp, DIST_UNIFORM, nMin, nMax, nDistribution, 0);
+		genrand_key(&nTemp, DIST_UNIFORM, nMin, nMax, nDistribution, 0);
       pBuf->nValue = nTemp;
 		pBuf->bUseInt = 1;
 		break;
 	}
-	
-	
+
+
 	return(DT_INT);
 }
 
@@ -327,7 +327,7 @@ EvalRownCountExpr(expr_t *pExpr, Expr_Val_t *pBuf, Expr_Val_t *pParams)
 	   szTable[40],
       *szName;
 	int i;
-	
+
 	szName = GetBuffer(pParams->pBuf);
 	
 	if (pExpr->nFlags & EXPR_FL_TABLENAME)
@@ -374,7 +374,7 @@ EvalDistExpr(expr_t *pExpr, Expr_Val_t *pBuf, Expr_Val_t *pParams, int bIsParam)
 		nOffset,
 		nModifierArg,
 		i, j,
-      nCount,
+		nCount,
       nTemp;
 	
 	szName = GetBuffer(pParams->pBuf);
@@ -444,7 +444,7 @@ EvalDistExpr(expr_t *pExpr, Expr_Val_t *pBuf, Expr_Val_t *pParams, int bIsParam)
 			/* pick n entries */
 			for (i=1; i <= nModifierArg; i++)
 			{
-            genrand_integer(&j, DIST_UNIFORM, 1, distsize(szName), 0, 0);
+            			genrand_integer(&j, DIST_UNIFORM, 1, distsize(szName), 0, 0);
 				if (nDataType == DT_INT)
 				{
 					pBuf[i - 1].bUseInt = 1;
@@ -461,7 +461,7 @@ EvalDistExpr(expr_t *pExpr, Expr_Val_t *pBuf, Expr_Val_t *pParams, int bIsParam)
 			if (bIsParam)
 				ReportError(QERR_MODIFIED_PARAM, NULL, 1);
 			nModifierArg = (int)pParams[3].nValue;
-			
+
 			/* permute it */
 			if (nModifierArg > distsize(szName))
 				ReportError(QERR_RANGE_ERROR, "", 1);
@@ -469,37 +469,37 @@ EvalDistExpr(expr_t *pExpr, Expr_Val_t *pBuf, Expr_Val_t *pParams, int bIsParam)
 				ReportError(QERR_RANGE_ERROR, NULL, 1);
 			
 			/* get n unique entries */
-         nCount = 0;
-         i = 1;
+         		nCount = 0;
+         		i = 1;
 			while (nCount < nModifierArg)
 			{
 				if (nDataType == DT_INT)
 				{
 					/* integers can rely on implicit uniqueness within the permutation */
-               pBuf[nCount].bUseInt = 1;
+               				pBuf[nCount].bUseInt = 1;
 					dist_member(&pBuf[nCount].nValue, szName, getPermutationEntry(pExpr->pPermute, i), nRow);
-               i += 1;
-               nCount += 1;
+               				i += 1;
+               				nCount += 1;
 				}
 				else
 				{
-               /*
-                * for string values, a permutation alone doesn't assure uniqueness. Keep picking until
-                * there are no duplicates
-                */
+               				/*
+                			 * for string values, a permutation alone doesn't assure uniqueness. Keep picking until
+                			 * there are no duplicates
+                			 */
 					dist_member(&pChar, szName, getPermutationEntry(pExpr->pPermute, i++), nRow);
-               j = 0;
-               while (nCount && (j < nCount))
-               {
-                  for (j=0; j < nCount; j++)
-                     if (strcmp(GetBuffer(pBuf[j].pBuf), pChar) == 0) 
-                     {
-                        dist_member(&pChar, szName, getPermutationEntry(pExpr->pPermute, i++), nRow);
-                        break;
-                     }
-               }
+               				j = 0;
+               				while (nCount && (j < nCount))
+               				{
+                  				for (j=0; j < nCount; j++)
+                     				if (strcmp(GetBuffer(pBuf[j].pBuf), pChar) == 0) 
+                     				{
+                        				dist_member(&pChar, szName, getPermutationEntry(pExpr->pPermute, i++), nRow);
+                        				break;
+                     				}
+               				}
 					AddBuffer(pBuf[nCount].pBuf, pChar);
-               nCount += 1;
+               				nCount += 1;
 				}
 			}
 			break;
@@ -562,7 +562,7 @@ EvalDateExpr(expr_t *pExpr, Expr_Val_t *pBuf, Expr_Val_t *pParams, int bIsParam)
 	strtodt(&dBegin, GetBuffer(pParams->pBuf));
 	strtodt(&dEnd, GetBuffer(pParams[1].pBuf));
 	nDistributionType = pParams[2].nValue;
-	
+
 	/* and then check to see if more are required */
 	switch (pExpr->nFlags & EXPR_FL_SUFFIX_MASK)
 	{
@@ -578,7 +578,7 @@ EvalDateExpr(expr_t *pExpr, Expr_Val_t *pBuf, Expr_Val_t *pParams, int bIsParam)
 		}
 		for (i=0; i < nModifierArg; i++)
 		{
-         genrand_integer(&j, DIST_UNIFORM, 1, nTotal, 0, 0);
+         		genrand_integer(&j, DIST_UNIFORM, 1, nTotal, 0, 0);
 			jtodt(&dResult, dBegin.julian + j - 1);
 			AddBuffer(pBuf[i].pBuf, dttostr(&dResult));
 		}
