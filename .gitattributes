@@ -1,0 +1,2 @@
+*.tpl linguist-language=SQL
+*.ans linguist-language=Text
