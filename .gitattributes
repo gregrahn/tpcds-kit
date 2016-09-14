@@ -1,4 +1,5 @@
+*.tpl linguist-language=SQL
+*.ans linguist-language=Text
 answer_sets/* linguist-vendored
 query_templates/*.tpl linguist-language=SQL
 query_variants/*.tpl linguist-language=SQL
-tests/* linguist-vendored
