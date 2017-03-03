@@ -33,9 +33,9 @@
 -- Contributors:
 -- 
 
-Define IMID  = random(1,1000,uniform);
-Define YEAR  = random(1998,2002,uniform);
-Define WSDATE = date([YEAR]+"-01-01",[YEAR]+"-04-01",sales);
+define IMID  = random(1,1000,uniform);
+define YEAR  = random(1998,2002,uniform);
+define WSDATE = date([YEAR]+"-01-01",[YEAR]+"-04-01",sales);
 define _LIMIT=100;
 
 [_LIMITA] select [_LIMITB] 

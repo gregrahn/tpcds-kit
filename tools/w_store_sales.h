@@ -34,7 +34,7 @@
  * Gradient Systems
  */ 
 #ifndef W_STORE_SALES_H
-#define W_STORE_SALES_H
+#define W_STORE_SLAES_H
 
 #include "constants.h"
 #include "pricing.h"

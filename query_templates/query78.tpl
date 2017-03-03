@@ -75,15 +75,15 @@ ss as
    )
 [_LIMITA] select [_LIMITB]
 [SELECTONE],
-round(ss_qty/(coalesce(ws_qty+cs_qty,1)),2) ratio,
+round(ss_qty/(coalesce(ws_qty,0)+coalesce(cs_qty,0)),2) ratio,
 ss_qty store_qty, ss_wc store_wholesale_cost, ss_sp store_sales_price,
 coalesce(ws_qty,0)+coalesce(cs_qty,0) other_chan_qty,
 coalesce(ws_wc,0)+coalesce(cs_wc,0) other_chan_wholesale_cost,
 coalesce(ws_sp,0)+coalesce(cs_sp,0) other_chan_sales_price
 from ss
 left join ws on (ws_sold_year=ss_sold_year and ws_item_sk=ss_item_sk and ws_customer_sk=ss_customer_sk)
-left join cs on (cs_sold_year=ss_sold_year and cs_item_sk=cs_item_sk and cs_customer_sk=ss_customer_sk)
-where coalesce(ws_qty,0)>0 and coalesce(cs_qty, 0)>0 and ss_sold_year=[YEAR]
+left join cs on (cs_sold_year=ss_sold_year and cs_item_sk=ss_item_sk and cs_customer_sk=ss_customer_sk)
+where (coalesce(ws_qty,0)>0 or coalesce(cs_qty, 0)>0) and ss_sold_year=[YEAR]
 order by 
   [SELECTONE],
   ss_qty desc, ss_wc desc, ss_sp desc,

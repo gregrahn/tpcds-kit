@@ -95,7 +95,7 @@
     (
      ca_country = 'United States'
      and
-     ca_state in ('[STATE.1]', '[STATE.2]', '[STATE.3 ]')
+     ca_state in ('[STATE.1]', '[STATE.2]', '[STATE.3]')
      and ws_net_profit between 100 and 200  
     )
     or

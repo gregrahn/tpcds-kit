@@ -33,9 +33,9 @@
 -- Contributors:
 -- 
 
-Define YEAR=random(1998,2002,uniform);
-Define SDATE=date([YEAR]+"-01-01",[YEAR]+"-07-01",sales);
-Define CATEGORY=ulist(dist(categories,1,1),3);
+define YEAR=random(1998,2002,uniform);
+define SDATE=date([YEAR]+"-01-01",[YEAR]+"-07-01",sales);
+define CATEGORY=ulist(dist(categories,1,1),3);
 
 select i_item_id
       ,i_item_desc 

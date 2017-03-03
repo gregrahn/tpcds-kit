@@ -219,7 +219,7 @@
  	,sum(case when d_moy = 9 
  		then [NETTWO] * cs_quantity else 0 end) as sep_net
  	,sum(case when d_moy = 10 
- 		then [NETTWo] * cs_quantity else 0 end) as oct_net
+ 		then [NETTWO] * cs_quantity else 0 end) as oct_net
  	,sum(case when d_moy = 11
  		then [NETTWO] * cs_quantity else 0 end) as nov_net
  	,sum(case when d_moy = 12
