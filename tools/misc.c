@@ -41,9 +41,9 @@
 #include <errno.h>
 #include <ctype.h>
 #include <math.h>
-#ifndef _POSIX_SOURCE
+#ifndef USE_STDLIB_H
 #include <malloc.h>
-#endif /* POSIX_SOURCE */
+#endif
 #include <fcntl.h>
 #ifdef AIX
 #include <sys/mode.h>

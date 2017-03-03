@@ -37,6 +37,16 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+#ifdef MACOS
+#define SUPPORT_64BITS
+#define HUGE_TYPE	int64_t
+#define HUGE_FORMAT	"%lld"
+#define HUGE_COUNT	1
+#define USE_STRING_H
+#define USE_STDLIB_H
+#define FLEX
+#endif /* MACOS */
+
 #ifdef NCR
 #define STDLIB_HAS_GETOPT
 #define USE_STRING_H

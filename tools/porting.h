@@ -113,6 +113,10 @@ char *strdup(const char *);
 #define MAXINT INT_MAX
 #endif
 
+#ifdef MACOS
+#include <limits.h>
+#define MAXINT INT_MAX
+#endif /* MACOS */
 
 #define INTERNAL(m) {\
 fprintf(stderr, "ERROR: %s\n\tFile: %s\n\tLine: %d\n", \

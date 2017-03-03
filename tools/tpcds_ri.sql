@@ -36,7 +36,7 @@
 alter table call_center add constraint cc_d1 foreign key  (cc_closed_date_sk) references date_dim (d_date_sk);
 alter table call_center add constraint cc_d2 foreign key  (cc_open_date_sk) references date_dim (d_date_sk);
 alter table catalog_page add constraint cp_d1 foreign key  (cp_end_date_sk) references date_dim (d_date_sk);
-alter table catalog_page add constraint cp_p foreign key  (cp_promo_id) references promotion (p_promo_sk);
+-- alter table catalog_page add constraint cp_p foreign key  (cp_promo_id) references promotion (p_promo_sk);
 alter table catalog_page add constraint cp_d2 foreign key  (cp_start_date_sk) references date_dim (d_date_sk);
 alter table catalog_returns add constraint cr_cc foreign key  (cr_call_center_sk) references call_center (cc_call_center_sk);
 alter table catalog_returns add constraint cr_cp foreign key  (cr_catalog_page_sk) references catalog_page (cp_catalog_page_sk);
@@ -47,12 +47,12 @@ alter table catalog_returns add constraint cr_cd1 foreign key  (cr_refunded_cdem
 alter table catalog_returns add constraint cr_c1 foreign key  (cr_refunded_customer_sk) references customer (c_customer_sk);
 alter table catalog_returns add constraint cr_hd1 foreign key  (cr_refunded_hdemo_sk) references household_demographics (hd_demo_sk);
 alter table catalog_returns add constraint cr_d1 foreign key  (cr_returned_date_sk) references date_dim (d_date_sk);
-alter table catalog_returns add constraint cr_i foreign key  (cr_returned_time_sk) references time_dim (t_time_sk);
+alter table catalog_returns add constraint cr_t foreign key  (cr_returned_time_sk) references time_dim (t_time_sk);
 alter table catalog_returns add constraint cr_a2 foreign key  (cr_returning_addr_sk) references customer_address (ca_address_sk);
 alter table catalog_returns add constraint cr_cd2 foreign key  (cr_returning_cdemo_sk) references customer_demographics (cd_demo_sk);
 alter table catalog_returns add constraint cr_c2 foreign key  (cr_returning_customer_sk) references customer (c_customer_sk);
 alter table catalog_returns add constraint cr_hd2 foreign key  (cr_returning_hdemo_sk) references household_demographics (hd_demo_sk);
-alter table catalog_returns add constraint cr_d2 foreign key  (cr_ship_date_sk) references date_dim (d_date_sk);
+-- alter table catalog_returns add constraint cr_d2 foreign key  (cr_ship_date_sk) references date_dim (d_date_sk);
 alter table catalog_returns add constraint cr_sm foreign key  (cr_ship_mode_sk) references ship_mode (sm_ship_mode_sk);
 alter table catalog_returns add constraint cr_w2 foreign key  (cr_warehouse_sk) references warehouse (w_warehouse_sk);
 alter table catalog_sales add constraint cs_b_a foreign key  (cs_bill_addr_sk) references customer_address (ca_address_sk);
@@ -116,12 +116,12 @@ alter table web_returns add constraint wr_ret_t foreign key  (wr_returned_time_s
 alter table web_returns add constraint wr_ret_a foreign key  (wr_returning_addr_sk) references customer_address (ca_address_sk);
 alter table web_returns add constraint wr_ret_cd foreign key  (wr_returning_cdemo_sk) references customer_demographics (cd_demo_sk);
 alter table web_returns add constraint wr_ret_c foreign key  (wr_returning_customer_sk) references customer (c_customer_sk);
-alter table web_returns add constraint wr_ret_cd foreign key  (wr_returning_hdemo_sk) references household_demographics (hd_demo_sk);
+alter table web_returns add constraint wr_ret_hd foreign key  (wr_returning_hdemo_sk) references household_demographics (hd_demo_sk);
 alter table web_returns add constraint wr_wp foreign key  (wr_web_page_sk) references web_page (wp_web_page_sk);
 alter table web_sales add constraint ws_b_a foreign key  (ws_bill_addr_sk) references customer_address (ca_address_sk);
 alter table web_sales add constraint ws_b_cd foreign key  (ws_bill_cdemo_sk) references customer_demographics (cd_demo_sk);
 alter table web_sales add constraint ws_b_c foreign key  (ws_bill_customer_sk) references customer (c_customer_sk);
-alter table web_sales add constraint ws_b_cd foreign key  (ws_bill_hdemo_sk) references household_demographics (hd_demo_sk);
+alter table web_sales add constraint ws_b_hd foreign key  (ws_bill_hdemo_sk) references household_demographics (hd_demo_sk);
 alter table web_sales add constraint ws_i foreign key  (ws_item_sk) references item (i_item_sk);
 alter table web_sales add constraint ws_p foreign key  (ws_promo_sk) references promotion (p_promo_sk);
 alter table web_sales add constraint ws_s_a foreign key  (ws_ship_addr_sk) references customer_address (ca_address_sk);
