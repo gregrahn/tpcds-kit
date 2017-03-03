@@ -34,7 +34,6 @@ tokenizer.c
 dsqgen
 dsdgen
 checksum
-makefile
 .ctags_updated
 tags
 
