@@ -50,7 +50,8 @@ with results as
               and inv_item_sk=i_item_sk
               and inv_warehouse_sk = w_warehouse_sk
               and d_month_seq between [DMS] and [DMS] + 11
-       group by i_product_name,i_brand,i_class,i_category),
+--       group by i_product_name,i_brand,i_class,i_category
+),
 results_rollup as 
 (select i_product_name, i_brand, i_class, i_category,avg(qoh) qoh 
 from results 
