@@ -87,8 +87,7 @@ select item_sk
 )
 [_LIMITA] select [_LIMITB] *
 from(
-        select v1.item_sk, v1.d_date, v1.web_sales, v1.store_sales, max(v2.web_sales) web_cumulative, max(v2.store_sales) s
-tore_cumulative
+        select v1.item_sk, v1.d_date, v1.web_sales, v1.store_sales, max(v2.web_sales) web_cumulative, max(v2.store_sales) store_cumulative
         from v v1, v v2
         where v1.item_sk = v2.item_sk and v1.rk >= v2.rk
         group by v1.item_sk, v1.d_date, v1.web_sales, v1.store_sales
