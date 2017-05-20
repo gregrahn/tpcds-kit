@@ -2,7 +2,7 @@
 
 The official TPC-DS tools can be found at [tpc.org](http://www.tpc.org/tpc_documents_current_versions/current_specifications.asp).
 
-This version is based on v2.4 has been modified to:
+This version is based on v2.4 and has been modified to:
 
 * Allow compilation under macOS (commit [2ec45c5](https://github.com/gregrahn/tpcds-kit/commit/2ec45c5ed97cc860819ee630770231eac738097c))
 * Address obvious query template bugs like 
