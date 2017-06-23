@@ -9,6 +9,7 @@ This version is based on v2.5 and has been modified to:
   * https://github.com/gregrahn/tpcds-kit/issues/30
   * https://github.com/gregrahn/tpcds-kit/issues/31
   * https://github.com/gregrahn/tpcds-kit/issues/33
+  * https://github.com/gregrahn/tpcds-kit/issues/35
 
 ## Setup
 
