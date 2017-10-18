@@ -152,5 +152,6 @@ where cs1.item_sk=cs2.item_sk and
      cs1.store_zip = cs2.store_zip
 order by cs1.product_name
        ,cs1.store_name
-       ,cs2.cnt;
+       ,cs2.cnt
+       ,cs2.s1;
 

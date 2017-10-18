@@ -1,5 +1,5 @@
 END USER LICENSE AGREEMENT
-VERSION 2.1
+VERSION 2.2
 
 
 READ THE TERMS AND CONDITIONS OF THIS AGREEMENT (“AGREEMENT”) CAREFULLY BEFORE INSTALLING OR USING THE ACCOMPANYING SOFTWARE.  BY INSTALLING OR USING THE SOFTWARE OR RELATED DOCUMENTATION, YOU AGREE TO BE BOUND BY THE TERMS OF THIS AGREEMENT.  IF YOU DO NOT AGREE TO THE TERMS OF THIS AGREEMENT, DO NOT INSTALL OR USE THE SOFTWARE. IF YOU ARE ACCESSING THE SOFTWARE ON BEHALF OF YOUR ORGANIZATION, YOU REPRESENT AND WARRANT THAT YOU HAVE SUFFICIENT AUTHORITY TO BIND YOUR ORGANIZATION TO THIS AGREEMENT.
@@ -8,7 +8,7 @@ USE AND RE-EXPORT OF THE SOFTWARE IS SUBJECT TO THE UNITED STATES EXPORT CONTROL
 
 This is a legal agreement between you (or, if you are accessing the software on behalf of your organization, your organization) (“You” or “User”) and the Transaction Processing Performance Council (“TPC”).  This Agreement states the terms and conditions upon which TPC offers to license the  Software, including, but not limited to, the source code, scripts, executable programs, drivers, libraries and data files associated with such programs, and modifications thereof (the “Software”), and online, electronic or printed documentation (“Documentation,” together with the Software, “Materials”).
 
-The Software may contain proprietary third-party software which has been licensed to the TPC to bundle and distribute as part of the benchmark.  Any third-party software is subject to the terms and conditions in its associated third-party license.
+
 
 LICENSE
 
@@ -25,16 +25,13 @@ a.	Use by Individual. If You are accessing the Materials as an individual, only 
 b.	Use by Organization. If You are accessing the Materials on behalf of Your organization, only You and those within Your organization may use the Materials.  Your organization must identify a contact person to TPC and conduct communications with TPC through that contact person.
 4.	Restrictions. The following restrictions apply to all use of the Materials by You.
 a.	General: You may not:
-(1)	use, copy, print, modify, adapt, create derivative works from, market, deliver, rent, lease, sublicense, make, have made, assign, pledge, transfer, sell, offer to sell, import, reproduce, distribute, publicly perform, publicly display or otherwise grant rights to the Materials, or any copy thereof, in whole or in part, except as expressly permitted under this Agreement;
-(2)	use the Materials in any way that does not comply with all applicable laws and regulations; or
-(3)	submit or contribute the Materials, or any part thereof, to any open source software project or as part of any third-party software or project without the express written consent of the TPC chair. 
-b.	Modification:  You may modify the Software (excluding any third party software contained therein).
+(1)	use, copy, print, modify, adapt, create derivative works from, market, deliver, rent, lease, sublicense, make, have made, assign, pledge, transfer, sell, offer to sell, import, reproduce, distribute, publicly perform, publicly display or otherwise grant rights to the Materials, or any copy thereof, in whole or in part, except as expressly permitted under this Agreement; or
+(2)	use the Materials in any way that does not comply with all applicable laws and regulations.
+b.	Modification:  You may modify the Software.
 c.	Public Disclosure: You may not publicly disclose any performance results produced while using the Software except in the following circumstances:
 (1)	as part of a TPC Benchmark Result.  For purposes of this Agreement, a “TPC Benchmark Result” is a performance test submitted to the TPC, documented by a Full Disclosure Report and Executive Summary, claiming to meet the requirements of an official TPC Benchmark Standard. You agree that TPC Benchmark Results may only be published in accordance with the TPC Policies. viewable at http: //www.tpc.org
 (2)	as part of an academic or research effort that does not imply or state a marketing position
-(3)	any other use of the Software, provided that:
-(a)	any performance results must be clearly identified as not being comparable to TPC Benchmark Results unless specifically authorized by TPC, and
-(b)	You secure written permission from the TPC.
+(3)	any other use of the Software, provided that any performance results must be clearly identified as not being comparable to TPC Benchmark Results unless specifically authorized by TPC.
 5.	License Modification. Requests for modification of this license shall be addressed to info@tpc.org.  You may not remove or modify this license without permission.
 6.	Copyright. The Materials are owned by TPC and/or its licensors, and are protected by United States copyright laws and international treaty provisions. You may not remove the copyright notice from the original or any copy of the Materials, and You must apply the notice if You extract part of the Materials not bearing a notice.
 7.	Use of Name. You acknowledge and agree that TPC owns all trademark and trade name rights in the names, trademarks and logos used by TPC in the Materials. User shall preserve any notices regarding such ownership. User may only use such names, trademarks and logos in accordance with the usage guidelines specified by the TPC Policies.
@@ -78,4 +75,5 @@ If You acquired the Materials in the European Union (EU), the following provisio
 3.	Limitation of Remedy and Damages. THE LIMITATIONS OF REMEDIES AND DAMAGES IN THE SOFTWARE LICENSE AGREEMENT SHALL NOT APPLY TO PERSONAL INJURY (INCLUDING DEATH) TO ANY PERSON CAUSED BY TPC’S NEGLIGENCE AND ARE SUBJECT TO THE PROVISION SET OUT UNDER THE HEADING “STATUTORY RIGHTS”.
 4.	Statutory Rights: Irish law provides that certain conditions and warranties may be implied in contracts for the sale of goods and in contracts for the supply of services. Such conditions and warranties are hereby excluded, to the extent such exclusion, in the context of this transaction, is lawful under Irish law. Conversely, such conditions and warranties, insofar as they may not be lawfully excluded, shall apply. Accordingly nothing in this Agreement shall prejudice any rights that You may enjoy by virtue of Sections 12, 13, 14 or 15 of the Irish Sale of Goods Act 1893 (as amended).
 5.	General. This Agreement is governed by the laws of the Republic of Ireland. The local language version of this agreement shall apply to Materials acquired in the EU. This Agreement is the entire agreement between us with respect to the subject matter hereof and You agree that TPC will not have any liability for any untrue statement or representation made by it, its agents or anyone else (whether innocently or negligently) upon which You relied upon entering this Agreement, unless such untrue statement or representation was made fraudulently.
+ 
 

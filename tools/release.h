@@ -40,7 +40,7 @@
  *** RELEASE INFORMATION
  ***/
 #define VERSION       2
-#define RELEASE       5 
+#define RELEASE       6 
 #define MODIFICATION  0
 #define PATCH         ""
 #define COPYRIGHT     "Transaction Processing Performance Council (TPC)"

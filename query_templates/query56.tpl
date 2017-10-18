@@ -101,7 +101,8 @@ where i_color in ('[COLOR.1]','[COLOR.2]','[COLOR.3]'))
         union all
         select * from ws) tmp1
  group by i_item_id
- order by total_sales
+ order by total_sales,
+          i_item_id
  [_LIMITC];
  
 
