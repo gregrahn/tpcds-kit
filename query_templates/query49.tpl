@@ -36,7 +36,8 @@
  define MONTH=random(11,12,uniform);
  define _LIMIT=100;
  
- [_LIMITA] select [_LIMITB] 
+ [_LIMITA] select [_LIMITB] channel, item, return_ratio, return_rank, currency_rank from
+ (select
  'web' as channel
  ,web.item
  ,web.return_ratio
@@ -158,7 +159,6 @@
  or 
  store.currency_rank <= 10
  )
+ )
  order by 1,4,5,2
  [_LIMITC];
- 
-

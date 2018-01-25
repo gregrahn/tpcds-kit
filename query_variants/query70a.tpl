@@ -58,7 +58,7 @@
               where ranking <= 5)
   group by s_state,s_county) ,  
  results_rollup as 
-sselect total_sum ,s_state ,s_county, 0 as g_state, 0 as g_county, 0 as lochierarchy from results
+select total_sum ,s_state ,s_county, 0 as g_state, 0 as g_county, 0 as lochierarchy from results
  union
  select sum(total_sum) as total_sum,s_state, NULL as s_county, 0 as g_state, 1 as g_county, 1 as lochierarchy from results group by s_state
  union

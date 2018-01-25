@@ -12,8 +12,8 @@ OR	   27
 ND	   28
 UT	   31
 SD	   35
-NM	   36
 ID	   36
+NM	   36
 WV	   45
 WA	   46
 SC	   47
@@ -28,7 +28,7 @@ PA	   56
 OK	   57
 CA	   60
 MS	   69
-%	   73
+	   73
 AR	   73
 TN	   74
 IN	   76
@@ -45,8 +45,3 @@ NC	  107
 VA	  137
 GA	  153
 TX	  228
-
-45 rows selected.
-
-
-
