@@ -74,15 +74,14 @@
  ), 
  cr as
  (select cr_call_center_sk
-        sum(cr_return_amount) as returns,
-        sum(cr_net_loss) as profit_loss
+         sum(cr_return_amount) as returns,
+         sum(cr_net_loss) as profit_loss
  from catalog_returns,
       date_dim
  where cr_returned_date_sk = d_date_sk
        and d_date between cast('[SALES_DATE]' as date)
                   and (cast('[SALES_DATE]' as date) +  30 )
- group by cr_call_center_sk
- ), 
+ group by cr_call_center_sk), 
  ws as
  ( select wp_web_page_sk,
         sum(ws_ext_sales_price) as sales,
