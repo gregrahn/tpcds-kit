@@ -36,7 +36,7 @@
  define _LIMIT=100;
  define SELECTONE= text({"v1.i_category",1},{"v1.i_brand",1},{"v1.i_category, v1.i_brand",1},{"v1.s_store_name",1},{"v1.s_company_name",1},{"v1.s_store_name, v1.s_company_name",1},{"v1.i_category, v1.i_brand, v1.s_store_name, v1.s_company_name",1}); 
  define SELECTTWO= text({",v1.d_year",1},{",v1.d_year, v1.d_moy",1}); 
-
+ define ORDERBY= text({"avg_monthly_sales",1},{"sum_sales",1},{"psum",1},{"nsum",1});
 
  with v1 as(
  select i_category, i_brand,
@@ -84,6 +84,6 @@
  where  d_year = [YEAR] and    
         avg_monthly_sales > 0 and
         case when avg_monthly_sales > 0 then abs(sum_sales - avg_monthly_sales) / avg_monthly_sales else null end > 0.1
- order by sum_sales - avg_monthly_sales, 3
+ order by sum_sales - avg_monthly_sales, [ORDERBY]
  [_LIMITC];
 
