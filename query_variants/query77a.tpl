@@ -73,7 +73,7 @@
  group by cs_call_center_sk 
  ), 
  cr as
- (select cr_call_center_sk
+ (select cr_call_center_sk,
          sum(cr_return_amount) as returns,
          sum(cr_net_loss) as profit_loss
  from catalog_returns,
