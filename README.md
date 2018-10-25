@@ -7,6 +7,7 @@ This version is based on v2.10.0 and has been modified to:
 * Allow compilation under macOS (commit [2ec45c5](https://github.com/gregrahn/tpcds-kit/commit/2ec45c5ed97cc860819ee630770231eac738097c))
 * Address obvious query template bugs like
   * query22a: [#31](https://github.com/gregrahn/tpcds-kit/issues/31)
+* Rename s_web_returns column wret_web_site_id to wret_web_page_id to match specification. See [#22](https://github.com/gregrahn/tpcds-kit/issues/22) & [#42](https://github.com/gregrahn/tpcds-kit/issues/42).
 
 To see all modifications, diff the files in the master branch to the version branch. Eg: `master` vs `v2.10.0`.
 
