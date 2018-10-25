@@ -397,7 +397,7 @@ create table s_catalog_returns
 -- ============================================================
 create table s_web_returns
 (
-    wret_web_site_id            char(16)                      ,
+    wret_web_page_id            char(16)                      ,
     wret_order_id               integer               not null,
     wret_line_number            integer               not null,
     wret_item_id                char(16)              not null,
