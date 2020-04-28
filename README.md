@@ -58,6 +58,26 @@ make OS=MACOS
 
 Data generation is done via `dsdgen`.  See `dsdgen -help` for all options.  If you do not run `dsdgen` from the `tools/` directory then you will need to use the option `-DISTRIBUTIONS /.../tpcds-kit/tools/tpcds.idx`. The output directory (specified via the `-DIR` option) must exist prior to running `dsdgen`. 
 
+From the tools directory
+```
+mkdir /tmp/data
+./dsdgen \
+-SCALE 100 \
+-DIR /tmp/data
+```
+
+From an alternate directory
+```
+mkdir /tmp/data
+cp dsdgen /tmp/data
+cd /tmp/data
+./dsdgen \
+-SCALE 100 \
+-DIR /tmp/data \
+-DISTRIBUTIONS $HOME/projects/tpcds-kit/tools/tpcds.idx
+
+```
+
 ### Query generation
 
 Query generation is done via `dsqgen`.   See `dsqgen -help` for all options.
