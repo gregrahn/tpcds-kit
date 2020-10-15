@@ -32,7 +32,7 @@
  * 
  * Contributors:
  * Gradient Systems
- */ 
+ */
 #include "config.h"
 #include "porting.h"
 #include <stdio.h>
@@ -50,6 +50,7 @@
 #include "tdefs.h"
 
 struct CATALOG_PAGE_TBL g_w_catalog_page;
+static int SCHEMA_W;
 
 /*
 * Routine: mk_catalog_page()
@@ -69,64 +70,63 @@ struct CATALOG_PAGE_TBL g_w_catalog_page;
 * 20020903 jms cp_department needs to be randomized
 * 20020903 jms cp_description needs to be randomized
 */
-int
-mk_w_catalog_page (void *row, ds_key_t index)
+int mk_w_catalog_page(void *row, ds_key_t index)
 {
 	int res = 0;
 	static date_t *dStartDate;
 	static int nCatalogPageMax;
-	int nDuration, 
+	int nDuration,
 		nOffset,
 		nType;
 	static int bInit = 0;
 	struct CATALOG_PAGE_TBL *r;
 	int nCatalogInterval;
-   tdef *pTdef = getSimpleTdefsByNumber(CATALOG_PAGE);
+	tdef *pTdef = getSimpleTdefsByNumber(CATALOG_PAGE);
 
 	if (row == NULL)
 		r = &g_w_catalog_page;
 	else
 		r = row;
-	
+
 	if (!bInit)
 	{
-		nCatalogPageMax = ((int)get_rowcount(CATALOG_PAGE) / CP_CATALOGS_PER_YEAR) / (YEAR_MAXIMUM - YEAR_MINIMUM + 2); 
+		nCatalogPageMax = ((int)get_rowcount(CATALOG_PAGE) / CP_CATALOGS_PER_YEAR) / (YEAR_MAXIMUM - YEAR_MINIMUM + 2);
 		dStartDate = strtodate(DATA_START_DATE);
 
 		/* columns that still need to be populated */
-        strcpy (r->cp_department, "DEPARTMENT");
+		strcpy(r->cp_department, "DEPARTMENT");
 
 		bInit = 1;
 	}
-	
+
 	nullSet(&pTdef->kNullBitMap, CP_NULLS);
 	r->cp_catalog_page_sk = index;
 	mk_bkey(&r->cp_catalog_page_id[0], index, CP_CATALOG_PAGE_ID);
 	r->cp_catalog_number = (long)(index - 1) / nCatalogPageMax + 1;
 	r->cp_catalog_page_number = (long)(index - 1) % nCatalogPageMax + 1;
-	switch(nCatalogInterval = ((r->cp_catalog_number - 1)%CP_CATALOGS_PER_YEAR))
+	switch (nCatalogInterval = ((r->cp_catalog_number - 1) % CP_CATALOGS_PER_YEAR))
 	{
-	case 0:			/* bi-annual */
+	case 0: /* bi-annual */
 	case 1:
 		nType = 1;
 		nDuration = 182;
 		nOffset = nCatalogInterval * nDuration;
 		break;
 	case 2:
-	case 3:			/* Q2 */
-	case 4:			/* Q3 */
-	case 5:			/* Q4 */
+	case 3: /* Q2 */
+	case 4: /* Q3 */
+	case 5: /* Q4 */
 		nDuration = 91;
-		nOffset = (nCatalogInterval- 2) * nDuration;
+		nOffset = (nCatalogInterval - 2) * nDuration;
 		nType = 2;
 		break;
 	default:
 		nDuration = 30;
 		nOffset = (nCatalogInterval - 6) * nDuration;
-		nType = 3;	/* monthly */
+		nType = 3; /* monthly */
 	}
 	r->cp_start_date_id = dStartDate->julian + nOffset;
-   r->cp_start_date_id += ((r->cp_catalog_number - 1) / CP_CATALOGS_PER_YEAR) * 365;
+	r->cp_start_date_id += ((r->cp_catalog_number - 1) / CP_CATALOGS_PER_YEAR) * 365;
 	r->cp_end_date_id = r->cp_start_date_id + nDuration - 1;
 	dist_member(&r->cp_type, "catalog_page_type", nType, 1);
 	gen_text(&r->cp_description[0], RS_CP_DESCRIPTION / 2, RS_CP_DESCRIPTION - 1, CP_DESCRIPTION);
@@ -148,8 +148,7 @@ mk_w_catalog_page (void *row, ds_key_t index)
 * Side Effects:
 * TODO: None
 */
-int
-pr_w_catalog_page(void *row)
+int pr_w_catalog_page(void *row)
 {
 	struct CATALOG_PAGE_TBL *r;
 
@@ -170,7 +169,24 @@ pr_w_catalog_page(void *row)
 	print_varchar(CP_TYPE, r->cp_type, 0);
 	print_end(CATALOG_PAGE);
 
-	return(0);
+	if (SCHEMA_W < 1)
+	{
+
+		print_json_schema_start(CATALOG_PAGE);
+		print_json_schema_col(CATALOG_PAGE, "CP_CATALOG_PAGE_SK", "STRING");
+		print_json_schema_col(CATALOG_PAGE, "CP_CATALOG_PAGE_ID", "STRING");
+		print_json_schema_col(CATALOG_PAGE, "CP_START_DATE_ID", "STRING");
+		print_json_schema_col(CATALOG_PAGE, "CP_END_DATE_ID", "STRING");
+		print_json_schema_col(CATALOG_PAGE, "CP_DEPARTMENT", "STRING");
+		print_json_schema_col(CATALOG_PAGE, "CP_CATALOG_NUMBER", "STRING");
+		print_json_schema_col(CATALOG_PAGE, "CP_CATALOG_PAGE_NUMBER", "INT");
+		print_json_schema_col(CATALOG_PAGE, "CR_RETURNING_CUSTOMER_SK", "INT");
+		print_json_schema_col(CATALOG_PAGE, "CP_DESCRIPTION", "STRING");
+		print_json_schema_end(CATALOG_PAGE, "CP_TYPE", "STRING");
+	}
+	SCHEMA_W = 1;
+
+	return (0);
 }
 
 /*
@@ -187,9 +203,7 @@ pr_w_catalog_page(void *row)
 * Side Effects:
 * TODO: None
 */
-int
-ld_w_catalog_page(void *r)
+int ld_w_catalog_page(void *r)
 {
-	return(0);
+	return (0);
 }
-

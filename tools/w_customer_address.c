@@ -32,7 +32,7 @@
  * 
  * Contributors:
  * Gradient Systems
- */ 
+ */
 #include "config.h"
 #include "porting.h"
 #include <stdio.h>
@@ -52,27 +52,26 @@ struct W_CUSTOMER_ADDRESS_TBL g_w_customer_address;
 /*
 * mk_customer_address
 */
-int
-mk_w_customer_address (void* row, ds_key_t index)
+int mk_w_customer_address(void *row, ds_key_t index)
 {
-	
+
 	int res = 0;
-	
+
 	/* begin locals declarations */
 	struct W_CUSTOMER_ADDRESS_TBL *r;
-   tdef *pTdef = getSimpleTdefsByNumber(CUSTOMER_ADDRESS);
+	tdef *pTdef = getSimpleTdefsByNumber(CUSTOMER_ADDRESS);
 
 	if (row == NULL)
 		r = &g_w_customer_address;
 	else
 		r = row;
-	
+
 	nullSet(&pTdef->kNullBitMap, CA_NULLS);
 	r->ca_addr_sk = index;
 	mk_bkey(&r->ca_addr_id[0], index, CA_ADDRESS_ID);
-	pick_distribution (&r->ca_location_type, "location_type", 1, 1, CA_LOCATION_TYPE);
+	pick_distribution(&r->ca_location_type, "location_type", 1, 1, CA_LOCATION_TYPE);
 	mk_address(&r->ca_address, CA_ADDRESS);
-	
+
 	return (res);
 }
 
@@ -90,8 +89,7 @@ mk_w_customer_address (void* row, ds_key_t index)
 * Side Effects:
 * TODO: None
 */
-int
-pr_w_customer_address(void *row)
+int pr_w_customer_address(void *row)
 {
 	struct W_CUSTOMER_ADDRESS_TBL *r;
 	char szTemp[128];
@@ -124,9 +122,30 @@ pr_w_customer_address(void *row)
 	print_varchar(CA_LOCATION_TYPE, r->ca_location_type, 0);
 	print_end(CUSTOMER_ADDRESS);
 
-	return(0);
-}
+	// print schema out to file
+	if (SCHEMA_W < 1)
+	{
 
+		print_json_schema_start(CUSTOMER_ADDRESS);
+		print_json_schema_col(CUSTOMER_ADDRESS, "CA_ADDRESS_SK", "STRING");
+		print_json_schema_col(CUSTOMER_ADDRESS, "CA_ADDRESS_ID", "STRING");
+
+		print_json_schema_col(CUSTOMER_ADDRESS, "CA_ADDRESS_STREET_NUM", "INT");
+		print_json_schema_col(CUSTOMER_ADDRESS, "CA_ADDRESS_STREET_NAME1", "STRING");
+		print_json_schema_col(CUSTOMER_ADDRESS, "CA_ADDRESS_STREET_TYPE", "STRING");
+		print_json_schema_col(CUSTOMER_ADDRESS, "CA_ADDRESS_SUITE_NUM", "STRING");
+		print_json_schema_col(CUSTOMER_ADDRESS, "CA_ADDRESS_CITY", "STRING");
+		print_json_schema_col(CUSTOMER_ADDRESS, "CA_ADDRESS_COUNTY", "STRING");
+		print_json_schema_col(CUSTOMER_ADDRESS, "CA_ADDRESS_STATE", "STRING");
+		print_json_schema_col(CUSTOMER_ADDRESS, "CA_ADDRESS_ZIP", "STRING");
+		print_json_schema_col(CUSTOMER_ADDRESS, "CA_ADDRESS_COUNTRY", "STRING");
+		print_json_schema_col(CUSTOMER_ADDRESS, "CA_ADDRESS_GMT_OFFSET", "INT");
+		print_json_schema_end(CUSTOMER_ADDRESS, "CA_LOCATION_TYPE", "STRING");
+	}
+	SCHEMA_W = 1;
+
+	return (0);
+}
 
 /*
 * Routine: 
@@ -142,8 +161,7 @@ pr_w_customer_address(void *row)
 * Side Effects:
 * TODO: None
 */
-int
-ld_w_customer_address(void *row)
+int ld_w_customer_address(void *row)
 {
 	struct W_CUSTOMER_ADDRESS_TBL *r;
 
@@ -152,6 +170,5 @@ ld_w_customer_address(void *row)
 	else
 		r = row;
 
-	return(0);
+	return (0);
 }
-

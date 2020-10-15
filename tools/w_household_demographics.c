@@ -32,7 +32,7 @@
  * 
  * Contributors:
  * Gradient Systems
- */ 
+ */
 #include "config.h"
 #include "porting.h"
 #include <stdio.h>
@@ -60,31 +60,29 @@ struct W_HOUSEHOLD_DEMOGRAPHICS_TBL g_w_household_demographics;
 /*
 * mk_household_demographics
 */
-int
-mk_w_household_demographics (void* row, ds_key_t index)
+int mk_w_household_demographics(void *row, ds_key_t index)
 {
 	int32_t res = 0;
 	/* begin locals declarations */
 	ds_key_t nTemp;
 	struct W_HOUSEHOLD_DEMOGRAPHICS_TBL *r;
-   tdef *pTdef = getSimpleTdefsByNumber(HOUSEHOLD_DEMOGRAPHICS);
+	tdef *pTdef = getSimpleTdefsByNumber(HOUSEHOLD_DEMOGRAPHICS);
 
 	if (row == NULL)
 		r = &g_w_household_demographics;
 	else
 		r = row;
 
-	
 	nullSet(&pTdef->kNullBitMap, HD_NULLS);
 	r->hd_demo_sk = index;
 	nTemp = r->hd_demo_sk;
 	r->hd_income_band_id =
-		(nTemp % distsize ("income_band")) + 1;
-	nTemp /= distsize ("income_band");
-	bitmap_to_dist (&r->hd_buy_potential, "buy_potential", &nTemp, 1, HOUSEHOLD_DEMOGRAPHICS);
-	bitmap_to_dist (&r->hd_dep_count, "dependent_count", &nTemp, 1, HOUSEHOLD_DEMOGRAPHICS);
-	bitmap_to_dist (&r->hd_vehicle_count, "vehicle_count", &nTemp, 1, HOUSEHOLD_DEMOGRAPHICS);
-	
+		(nTemp % distsize("income_band")) + 1;
+	nTemp /= distsize("income_band");
+	bitmap_to_dist(&r->hd_buy_potential, "buy_potential", &nTemp, 1, HOUSEHOLD_DEMOGRAPHICS);
+	bitmap_to_dist(&r->hd_dep_count, "dependent_count", &nTemp, 1, HOUSEHOLD_DEMOGRAPHICS);
+	bitmap_to_dist(&r->hd_vehicle_count, "vehicle_count", &nTemp, 1, HOUSEHOLD_DEMOGRAPHICS);
+
 	return (res);
 }
 
@@ -102,8 +100,7 @@ mk_w_household_demographics (void* row, ds_key_t index)
 * Side Effects:
 * TODO: None
 */
-int
-pr_w_household_demographics(void *row)
+int pr_w_household_demographics(void *row)
 {
 	struct W_HOUSEHOLD_DEMOGRAPHICS_TBL *r;
 
@@ -120,9 +117,20 @@ pr_w_household_demographics(void *row)
 	print_integer(HD_VEHICLE_COUNT, r->hd_vehicle_count, 0);
 	print_end(HOUSEHOLD_DEMOGRAPHICS);
 
-	return(0);
-}
+	// print schema out to file
+	if (SCHEMA_W < 1)
+	{
+		print_json_schema_start(HOUSEHOLD_DEMOGRAPHICS);
+		print_json_schema_col(HOUSEHOLD_DEMOGRAPHICS, "HD_DEMO_SK", "STRING");
+		print_json_schema_col(HOUSEHOLD_DEMOGRAPHICS, "HD_INCOME_BAND_ID", "STRING");
+		print_json_schema_col(HOUSEHOLD_DEMOGRAPHICS, "HD_BUY_POTENTIAL", "STRING");
+		print_json_schema_col(HOUSEHOLD_DEMOGRAPHICS, "HD_DEP_COUNT", "INT");
+		print_json_schema_end(HOUSEHOLD_DEMOGRAPHICS, "HD_VEHICLE_COUNT", "INT");
+	}
+	SCHEMA_W = 1;
 
+	return (0);
+}
 
 /*
 * Routine: 
@@ -138,16 +146,14 @@ pr_w_household_demographics(void *row)
 * Side Effects:
 * TODO: None
 */
-int 
-ld_w_household_demographics(void *pSrc)
+int ld_w_household_demographics(void *pSrc)
 {
 	struct W_HOUSEHOLD_DEMOGRAPHICS_TBL *r;
-		
+
 	if (pSrc == NULL)
 		r = &g_w_household_demographics;
 	else
 		r = pSrc;
-	
-	return(0);
-}
 
+	return (0);
+}

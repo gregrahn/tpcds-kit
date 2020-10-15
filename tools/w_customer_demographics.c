@@ -32,7 +32,7 @@
  * 
  * Contributors:
  * Gradient Systems
- */ 
+ */
 #include "config.h"
 #include "porting.h"
 #include <stdio.h>
@@ -48,42 +48,42 @@
 #include "sparse.h"
 
 struct W_CUSTOMER_DEMOGRAPHICS_TBL g_w_customer_demographics;
+static int SCHEMA_W;
 
 /*
 * mk_customer_demographics
 */
-int
-mk_w_customer_demographics (void* row, ds_key_t index)
+int mk_w_customer_demographics(void *row, ds_key_t index)
 {
 	int res = 0;
-	
+
 	struct W_CUSTOMER_DEMOGRAPHICS_TBL *r;
 	ds_key_t kTemp;
-   tdef *pTdef = getSimpleTdefsByNumber(CUSTOMER_DEMOGRAPHICS);
+	tdef *pTdef = getSimpleTdefsByNumber(CUSTOMER_DEMOGRAPHICS);
 
 	if (row == NULL)
 		r = &g_w_customer_demographics;
 	else
 		r = row;
-	
+
 	nullSet(&pTdef->kNullBitMap, CD_NULLS);
 	r->cd_demo_sk = index;
 	kTemp = r->cd_demo_sk - 1;
-	bitmap_to_dist (&r->cd_gender, "gender", &kTemp, 1, CUSTOMER_DEMOGRAPHICS);
-	bitmap_to_dist (&r->cd_marital_status, "marital_status", &kTemp, 1,
-		CUSTOMER_DEMOGRAPHICS);
-	bitmap_to_dist (&r->cd_education_status, "education", &kTemp, 1, CUSTOMER_DEMOGRAPHICS);
-	bitmap_to_dist (&r->cd_purchase_estimate, "purchase_band", &kTemp, 1, CUSTOMER_DEMOGRAPHICS);
-	bitmap_to_dist (&r->cd_credit_rating, "credit_rating", &kTemp, 1, CUSTOMER_DEMOGRAPHICS);
+	bitmap_to_dist(&r->cd_gender, "gender", &kTemp, 1, CUSTOMER_DEMOGRAPHICS);
+	bitmap_to_dist(&r->cd_marital_status, "marital_status", &kTemp, 1,
+				   CUSTOMER_DEMOGRAPHICS);
+	bitmap_to_dist(&r->cd_education_status, "education", &kTemp, 1, CUSTOMER_DEMOGRAPHICS);
+	bitmap_to_dist(&r->cd_purchase_estimate, "purchase_band", &kTemp, 1, CUSTOMER_DEMOGRAPHICS);
+	bitmap_to_dist(&r->cd_credit_rating, "credit_rating", &kTemp, 1, CUSTOMER_DEMOGRAPHICS);
 	r->cd_dep_count =
-		(int) (kTemp % (ds_key_t) CD_MAX_CHILDREN);
-	kTemp /= (ds_key_t) CD_MAX_CHILDREN;
+		(int)(kTemp % (ds_key_t)CD_MAX_CHILDREN);
+	kTemp /= (ds_key_t)CD_MAX_CHILDREN;
 	r->cd_dep_employed_count =
-		(int) (kTemp % (ds_key_t) CD_MAX_EMPLOYED);
-	kTemp /= (ds_key_t) CD_MAX_EMPLOYED;
+		(int)(kTemp % (ds_key_t)CD_MAX_EMPLOYED);
+	kTemp /= (ds_key_t)CD_MAX_EMPLOYED;
 	r->cd_dep_college_count =
-		(int) (kTemp % (ds_key_t) CD_MAX_COLLEGE);
-	
+		(int)(kTemp % (ds_key_t)CD_MAX_COLLEGE);
+
 	return (res);
 }
 
@@ -101,8 +101,7 @@ mk_w_customer_demographics (void* row, ds_key_t index)
 * Side Effects:
 * TODO: None
 */
-int
-pr_w_customer_demographics(void *row)
+int pr_w_customer_demographics(void *row)
 {
 	struct W_CUSTOMER_DEMOGRAPHICS_TBL *r;
 
@@ -123,9 +122,25 @@ pr_w_customer_demographics(void *row)
 	print_integer(CD_DEP_COLLEGE_COUNT, r->cd_dep_college_count, 0);
 	print_end(CUSTOMER_DEMOGRAPHICS);
 
-	return(0);
-}
+	// print schema out to file
+	if (SCHEMA_W < 1)
+	{
 
+		print_json_schema_start(CUSTOMER_DEMOGRAPHICS);
+		print_json_schema_col(CUSTOMER_DEMOGRAPHICS, "CD_DEMO_SK", "STRING");
+		print_json_schema_col(CUSTOMER_DEMOGRAPHICS, "CD_GENDER", "STRING");
+		print_json_schema_col(CUSTOMER_DEMOGRAPHICS, "CD_MARITAL_STATUS", "STRING");
+		print_json_schema_col(CUSTOMER_DEMOGRAPHICS, "CD_EDUCATION_STATUS", "STRING");
+		print_json_schema_col(CUSTOMER_DEMOGRAPHICS, "CD_PURCHASE_ESTIMATE", "INT");
+		print_json_schema_col(CUSTOMER_DEMOGRAPHICS, "CD_CREDIT_RATING", "STRING");
+		print_json_schema_col(CUSTOMER_DEMOGRAPHICS, "CD_DEP_COUNT", "INT");
+		print_json_schema_col(CUSTOMER_DEMOGRAPHICS, "CD_DEP_EMPLOYED_COUNT", "INT");
+		print_json_schema_end(CUSTOMER_DEMOGRAPHICS, "CD_DEP_COLLEGE_COUNT", "INT");
+	}
+	SCHEMA_W = 1;
+
+	return (0);
+}
 
 /*
 * Routine: 
@@ -141,8 +156,7 @@ pr_w_customer_demographics(void *row)
 * Side Effects:
 * TODO: None
 */
-int
-ld_w_customer_demographics(void *row)
+int ld_w_customer_demographics(void *row)
 {
 	struct W_CUSTOMER_DEMOGRAPHICS_TBL *r;
 
@@ -151,6 +165,5 @@ ld_w_customer_demographics(void *row)
 	else
 		r = row;
 
-	return(0);
+	return (0);
 }
-

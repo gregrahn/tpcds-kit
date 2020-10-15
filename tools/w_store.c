@@ -32,7 +32,7 @@
  * 
  * Contributors:
  * Gradient Systems
- */ 
+ */
 #include "config.h"
 #include "porting.h"
 #include <stdio.h>
@@ -58,17 +58,17 @@
 
 struct W_STORE_TBL g_w_store;
 static struct W_STORE_TBL g_OldValues;
+static int SCHEMA_W;
 
 /*
 * mk_store
 */
-int
-mk_w_store (void* row, ds_key_t index)
+int mk_w_store(void *row, ds_key_t index)
 {
 	int32_t res = 0,
-		nFieldChangeFlags,
-		bFirstRecord = 0;
-	
+			nFieldChangeFlags,
+			bFirstRecord = 0;
+
 	/* begin locals declarations */
 	static decimal_t dRevMin,
 		dRevMax;
@@ -89,30 +89,29 @@ mk_w_store (void* row, ds_key_t index)
 	static int32_t bInit = 0;
 	struct W_STORE_TBL *r,
 		*rOldValues = &g_OldValues;
-   tdef *pT = getSimpleTdefsByNumber(STORE);
+	tdef *pT = getSimpleTdefsByNumber(STORE);
 
 	if (row == NULL)
 		r = &g_w_store;
 	else
 		r = row;
-	
-	
-if (!bInit)
+
+	if (!bInit)
 	{
-        nHierarchyTotal = (int) get_rowcount (DIVISIONS);
-        nHierarchyTotal *= (int) get_rowcount (COMPANY);
-        tDate = strtodate (DATE_MINIMUM);
-        strtodec (&min_rev_growth, STORE_MIN_REV_GROWTH);
-        strtodec (&max_rev_growth, STORE_MAX_REV_GROWTH);
-        strtodec (&dRevMin, "1.00");
-        strtodec (&dRevMax, "1000000.00");
-        strtodec (&dMinTaxPercentage, STORE_MIN_TAX_PERCENTAGE);
-        strtodec (&dMaxTaxPercentage, STORE_MAX_TAX_PERCENTAGE);
-				
+		nHierarchyTotal = (int)get_rowcount(DIVISIONS);
+		nHierarchyTotal *= (int)get_rowcount(COMPANY);
+		tDate = strtodate(DATE_MINIMUM);
+		strtodec(&min_rev_growth, STORE_MIN_REV_GROWTH);
+		strtodec(&max_rev_growth, STORE_MAX_REV_GROWTH);
+		strtodec(&dRevMin, "1.00");
+		strtodec(&dRevMax, "1000000.00");
+		strtodec(&dMinTaxPercentage, STORE_MIN_TAX_PERCENTAGE);
+		strtodec(&dMaxTaxPercentage, STORE_MAX_TAX_PERCENTAGE);
+
 		/* columns that should be dynamic */
 		r->rec_end_date_id = -1;
-    }
-	
+	}
+
 	nullSet(&pT->kNullBitMap, W_STORE_NULLS);
 	r->store_sk = index;
 
@@ -123,93 +122,91 @@ if (!bInit)
 	{
 		bFirstRecord = 1;
 	}
-	
- /*
+
+	/*
   * this is  where we select the random number that controls if a field changes from 
   * one record to the next.
   */
 	nFieldChangeFlags = next_random(W_STORE_SCD);
 
-
 	/* the rest of the record in a history-keeping dimension can either be a new data value or not;
 	 * use a random number and its bit pattern to determine which fields to replace and which to retain
-	 */	
-	nPercentage = genrand_integer (NULL, DIST_UNIFORM, 1, 100, 0, W_STORE_CLOSED_DATE_ID);
+	 */
+	nPercentage = genrand_integer(NULL, DIST_UNIFORM, 1, 100, 0, W_STORE_CLOSED_DATE_ID);
 	nDaysOpen =
-		genrand_integer (NULL, DIST_UNIFORM, STORE_MIN_DAYS_OPEN, STORE_MAX_DAYS_OPEN, 0,
-		W_STORE_CLOSED_DATE_ID);
+		genrand_integer(NULL, DIST_UNIFORM, STORE_MIN_DAYS_OPEN, STORE_MAX_DAYS_OPEN, 0,
+						W_STORE_CLOSED_DATE_ID);
 	if (nPercentage < STORE_CLOSED_PCT)
 		r->closed_date_id = tDate->julian + nDaysOpen;
 	else
 		r->closed_date_id = -1;
-	changeSCD(SCD_KEY, &r->closed_date_id, &rOldValues->closed_date_id,  &nFieldChangeFlags,  bFirstRecord);
-   if (!r->closed_date_id)
-      r->closed_date_id = -1; /* dates use a special NULL indicator */
+	changeSCD(SCD_KEY, &r->closed_date_id, &rOldValues->closed_date_id, &nFieldChangeFlags, bFirstRecord);
+	if (!r->closed_date_id)
+		r->closed_date_id = -1; /* dates use a special NULL indicator */
 
-	mk_word (r->store_name, "syllables", (long)index, 5, W_STORE_NAME);
-	changeSCD(SCD_CHAR, &r->store_name, &rOldValues->store_name,  &nFieldChangeFlags,  bFirstRecord);
-	
+	mk_word(r->store_name, "syllables", (long)index, 5, W_STORE_NAME);
+	changeSCD(SCD_CHAR, &r->store_name, &rOldValues->store_name, &nFieldChangeFlags, bFirstRecord);
+
 	/*
     * use the store type to set the parameters for the rest of the attributes
     */
-	nStoreType = pick_distribution (&szTemp, "store_type", 1, 1, W_STORE_TYPE);
-	dist_member (&nMin, "store_type", nStoreType, 2);
-	dist_member (&nMax, "store_type", nStoreType, 3);
-	genrand_integer (&r->employees, DIST_UNIFORM, nMin, nMax, 0, W_STORE_EMPLOYEES);
-	changeSCD(SCD_INT, &r->employees, &rOldValues->employees,  &nFieldChangeFlags,  bFirstRecord);
+	nStoreType = pick_distribution(&szTemp, "store_type", 1, 1, W_STORE_TYPE);
+	dist_member(&nMin, "store_type", nStoreType, 2);
+	dist_member(&nMax, "store_type", nStoreType, 3);
+	genrand_integer(&r->employees, DIST_UNIFORM, nMin, nMax, 0, W_STORE_EMPLOYEES);
+	changeSCD(SCD_INT, &r->employees, &rOldValues->employees, &nFieldChangeFlags, bFirstRecord);
 
-	dist_member (&nMin, "store_type", nStoreType, 4);
-	dist_member (&nMax, "store_type", nStoreType, 5),
-	genrand_integer (&r->floor_space, DIST_UNIFORM, nMin, nMax, 0, W_STORE_FLOOR_SPACE);
-	changeSCD(SCD_INT, &r->floor_space, &rOldValues->floor_space,  &nFieldChangeFlags,  bFirstRecord);
+	dist_member(&nMin, "store_type", nStoreType, 4);
+	dist_member(&nMax, "store_type", nStoreType, 5),
+		genrand_integer(&r->floor_space, DIST_UNIFORM, nMin, nMax, 0, W_STORE_FLOOR_SPACE);
+	changeSCD(SCD_INT, &r->floor_space, &rOldValues->floor_space, &nFieldChangeFlags, bFirstRecord);
 
-	pick_distribution (&r->hours, "call_center_hours", 1, 1, W_STORE_HOURS);
-	changeSCD(SCD_PTR, &r->hours, &rOldValues->hours,  &nFieldChangeFlags,  bFirstRecord);
+	pick_distribution(&r->hours, "call_center_hours", 1, 1, W_STORE_HOURS);
+	changeSCD(SCD_PTR, &r->hours, &rOldValues->hours, &nFieldChangeFlags, bFirstRecord);
 
-	pick_distribution (&sName1, "first_names", 1, 1, W_STORE_MANAGER);
-	pick_distribution (&sName2, "last_names", 1, 1, W_STORE_MANAGER);
-	sprintf (r->store_manager, "%s %s", sName1, sName2);
-	changeSCD(SCD_CHAR, &r->store_manager, &rOldValues->store_manager,  &nFieldChangeFlags,  bFirstRecord);
+	pick_distribution(&sName1, "first_names", 1, 1, W_STORE_MANAGER);
+	pick_distribution(&sName2, "last_names", 1, 1, W_STORE_MANAGER);
+	sprintf(r->store_manager, "%s %s", sName1, sName2);
+	changeSCD(SCD_CHAR, &r->store_manager, &rOldValues->store_manager, &nFieldChangeFlags, bFirstRecord);
 
-	r->market_id = genrand_integer (NULL, DIST_UNIFORM, 1, 10, 0, W_STORE_MARKET_ID);
-	changeSCD(SCD_INT, &r->market_id, &rOldValues->market_id,  &nFieldChangeFlags,  bFirstRecord);
+	r->market_id = genrand_integer(NULL, DIST_UNIFORM, 1, 10, 0, W_STORE_MARKET_ID);
+	changeSCD(SCD_INT, &r->market_id, &rOldValues->market_id, &nFieldChangeFlags, bFirstRecord);
 
-	genrand_decimal(&r->dTaxPercentage ,DIST_UNIFORM, &dMinTaxPercentage, &dMaxTaxPercentage, NULL, W_STORE_TAX_PERCENTAGE);
-	changeSCD(SCD_DEC, &r->dTaxPercentage, &rOldValues->dTaxPercentage,  &nFieldChangeFlags,  bFirstRecord);
+	genrand_decimal(&r->dTaxPercentage, DIST_UNIFORM, &dMinTaxPercentage, &dMaxTaxPercentage, NULL, W_STORE_TAX_PERCENTAGE);
+	changeSCD(SCD_DEC, &r->dTaxPercentage, &rOldValues->dTaxPercentage, &nFieldChangeFlags, bFirstRecord);
 
-	pick_distribution (&r->geography_class, "geography_class", 1, 1, W_STORE_GEOGRAPHY_CLASS);
-	changeSCD(SCD_PTR, &r->geography_class, &rOldValues->geography_class,  &nFieldChangeFlags,  bFirstRecord);
+	pick_distribution(&r->geography_class, "geography_class", 1, 1, W_STORE_GEOGRAPHY_CLASS);
+	changeSCD(SCD_PTR, &r->geography_class, &rOldValues->geography_class, &nFieldChangeFlags, bFirstRecord);
 
-	gen_text (&r->market_desc[0], STORE_DESC_MIN, RS_S_MARKET_DESC, W_STORE_MARKET_DESC);
-	changeSCD(SCD_CHAR, &r->market_desc, &rOldValues->market_desc,  &nFieldChangeFlags,  bFirstRecord);
+	gen_text(&r->market_desc[0], STORE_DESC_MIN, RS_S_MARKET_DESC, W_STORE_MARKET_DESC);
+	changeSCD(SCD_CHAR, &r->market_desc, &rOldValues->market_desc, &nFieldChangeFlags, bFirstRecord);
 
-	pick_distribution (&sName1, "first_names", 1, 1, W_STORE_MARKET_MANAGER);
-	pick_distribution (&sName2, "last_names", 1, 1, W_STORE_MARKET_MANAGER);
-	sprintf (r->market_manager, "%s %s", sName1, sName2);
-	changeSCD(SCD_CHAR, &r->market_manager, &rOldValues->market_manager,  &nFieldChangeFlags,  bFirstRecord);
+	pick_distribution(&sName1, "first_names", 1, 1, W_STORE_MARKET_MANAGER);
+	pick_distribution(&sName2, "last_names", 1, 1, W_STORE_MARKET_MANAGER);
+	sprintf(r->market_manager, "%s %s", sName1, sName2);
+	changeSCD(SCD_CHAR, &r->market_manager, &rOldValues->market_manager, &nFieldChangeFlags, bFirstRecord);
 
 	r->division_id =
-		pick_distribution (&r->division_name, "divisions", 1, 1, W_STORE_DIVISION_NAME);
-	changeSCD(SCD_KEY, &r->division_id, &rOldValues->division_id,  &nFieldChangeFlags,  bFirstRecord);
-	changeSCD(SCD_PTR, &r->division_name, &rOldValues->division_name,  &nFieldChangeFlags,  bFirstRecord);
+		pick_distribution(&r->division_name, "divisions", 1, 1, W_STORE_DIVISION_NAME);
+	changeSCD(SCD_KEY, &r->division_id, &rOldValues->division_id, &nFieldChangeFlags, bFirstRecord);
+	changeSCD(SCD_PTR, &r->division_name, &rOldValues->division_name, &nFieldChangeFlags, bFirstRecord);
 
 	r->company_id =
-		pick_distribution (&r->company_name, "stores", 1, 1, W_STORE_COMPANY_NAME);
-	changeSCD(SCD_KEY, &r->company_id, &rOldValues->company_id,  &nFieldChangeFlags,  bFirstRecord);
-	changeSCD(SCD_PTR, &r->company_name, &rOldValues->company_name,  &nFieldChangeFlags,  bFirstRecord);
+		pick_distribution(&r->company_name, "stores", 1, 1, W_STORE_COMPANY_NAME);
+	changeSCD(SCD_KEY, &r->company_id, &rOldValues->company_id, &nFieldChangeFlags, bFirstRecord);
+	changeSCD(SCD_PTR, &r->company_name, &rOldValues->company_name, &nFieldChangeFlags, bFirstRecord);
 
 	mk_address(&r->address, W_STORE_ADDRESS);
-	changeSCD(SCD_PTR, &r->address.city, &rOldValues->address.city,  &nFieldChangeFlags,  bFirstRecord);
-	changeSCD(SCD_PTR, &r->address.county, &rOldValues->address.county,  &nFieldChangeFlags,  bFirstRecord);
-	changeSCD(SCD_INT, &r->address.gmt_offset, &rOldValues->address.gmt_offset,  &nFieldChangeFlags,  bFirstRecord);
-	changeSCD(SCD_PTR, &r->address.state, &rOldValues->address.state,  &nFieldChangeFlags,  bFirstRecord);
-	changeSCD(SCD_PTR, &r->address.street_type, &rOldValues->address.street_type,  &nFieldChangeFlags,  bFirstRecord);
-	changeSCD(SCD_PTR, &r->address.street_name1, &rOldValues->address.street_name1,  &nFieldChangeFlags,  bFirstRecord);
-	changeSCD(SCD_PTR, &r->address.street_name2, &rOldValues->address.street_name2,  &nFieldChangeFlags,  bFirstRecord);
-	changeSCD(SCD_INT, &r->address.street_num, &rOldValues->address.street_num,  &nFieldChangeFlags,  bFirstRecord);
-	changeSCD(SCD_INT, &r->address.zip, &rOldValues->address.zip,  &nFieldChangeFlags,  bFirstRecord);
+	changeSCD(SCD_PTR, &r->address.city, &rOldValues->address.city, &nFieldChangeFlags, bFirstRecord);
+	changeSCD(SCD_PTR, &r->address.county, &rOldValues->address.county, &nFieldChangeFlags, bFirstRecord);
+	changeSCD(SCD_INT, &r->address.gmt_offset, &rOldValues->address.gmt_offset, &nFieldChangeFlags, bFirstRecord);
+	changeSCD(SCD_PTR, &r->address.state, &rOldValues->address.state, &nFieldChangeFlags, bFirstRecord);
+	changeSCD(SCD_PTR, &r->address.street_type, &rOldValues->address.street_type, &nFieldChangeFlags, bFirstRecord);
+	changeSCD(SCD_PTR, &r->address.street_name1, &rOldValues->address.street_name1, &nFieldChangeFlags, bFirstRecord);
+	changeSCD(SCD_PTR, &r->address.street_name2, &rOldValues->address.street_name2, &nFieldChangeFlags, bFirstRecord);
+	changeSCD(SCD_INT, &r->address.street_num, &rOldValues->address.street_num, &nFieldChangeFlags, bFirstRecord);
+	changeSCD(SCD_INT, &r->address.zip, &rOldValues->address.zip, &nFieldChangeFlags, bFirstRecord);
 
-	
 	return (res);
 }
 
@@ -227,8 +224,7 @@ if (!bInit)
 * Side Effects:
 * TODO: None
 */
-int
-pr_w_store(void *row)
+int pr_w_store(void *row)
 {
 	struct W_STORE_TBL *r;
 	char szTemp[128];
@@ -274,12 +270,45 @@ pr_w_store(void *row)
 	print_varchar(W_STORE_ADDRESS_ZIP, szTemp, 1);
 	print_varchar(W_STORE_ADDRESS_COUNTRY, r->address.country, 1);
 	print_integer(W_STORE_ADDRESS_GMT_OFFSET, r->address.gmt_offset, 1);
-   print_decimal(W_STORE_TAX_PERCENTAGE,&r->dTaxPercentage, 0);
+	print_decimal(W_STORE_TAX_PERCENTAGE, &r->dTaxPercentage, 0);
 	print_end(STORE);
-	
-	return(0);
-}
 
+	// print schema out to file
+	if (SCHEMA_W < 1)
+	{
+		print_json_schema_start(STORE);
+		print_json_schema_col(STORE, "W_STORE_SK", "STRING");
+		print_json_schema_col(STORE, "W_STORE_ID", "STRING");
+		print_json_schema_col(STORE, "W_STORE_REC_START_DATE_ID", "DATE");
+		print_json_schema_col(STORE, "W_STORE_REC_END_DATE_ID", "DATE");
+		print_json_schema_col(STORE, "W_STORE_CLOSED_DATE_ID", "STRING");
+		print_json_schema_col(STORE, "W_STORE_NAME", "STRING");
+		print_json_schema_col(STORE, "W_STORE_EMPLOYEES", "INT");
+		print_json_schema_col(STORE, "W_STORE_FLOOR_SPACE", "INT");
+		print_json_schema_col(STORE, "W_STORE_HOURS", "STRING");
+		print_json_schema_col(STORE, "W_STORE_MANAGER", "STRING");
+		print_json_schema_col(STORE, "W_STORE_MARKET_ID", "INT");
+		print_json_schema_col(STORE, "W_STORE_GEOGRAPHY_CLASS", "STRING");
+		print_json_schema_col(STORE, "W_STORE_MARKET_DESC", "STRING");
+		print_json_schema_col(STORE, "W_STORE_MARKET_MANAGER", "STRING");
+		print_json_schema_col(STORE, "W_STORE_DIVISION_ID", "STRING");
+		print_json_schema_col(STORE, "W_STORE_COMPANY_NAME", "STRING");
+		print_json_schema_col(STORE, "W_STORE_ADDRESS_STREET_NUM", "STRING");
+		print_json_schema_col(STORE, "W_STORE_ADDRESS_STREET_NAME1", "STRING");
+		print_json_schema_col(STORE, "W_STORE_ADDRESS_STREET_TYPE", "STRING");
+		print_json_schema_col(STORE, "W_STORE_ADDRESS_SUITE_NUM", "STRING");
+		print_json_schema_col(STORE, "W_STORE_ADDRESS_CITY", "STRING");
+		print_json_schema_col(STORE, "W_STORE_ADDRESS_COUNTY", "STRING");
+		print_json_schema_col(STORE, "W_STORE_ADDRESS_STATE", "STRING");
+		print_json_schema_col(STORE, "W_STORE_ADDRESS_ZIP", "STRING");
+		print_json_schema_col(STORE, "W_STORE_ADDRESS_COUNTRY", "STRING");
+		print_json_schema_col(STORE, "W_STORE_ADDRESS_GMT_OFFSET", "INT");
+		print_json_schema_end(STORE, "W_STORE_TAX_PERCENTAGE", "DECIMAL(7,2)");
+	}
+	SCHEMA_W = 1;
+
+	return (0);
+}
 
 /*
 * Routine: 
@@ -295,16 +324,14 @@ pr_w_store(void *row)
 * Side Effects:
 * TODO: None
 */
-int 
-ld_w_store(void *pSrc)
+int ld_w_store(void *pSrc)
 {
 	struct W_STORE_TBL *r;
-		
+
 	if (pSrc == NULL)
 		r = &g_w_store;
 	else
 		r = pSrc;
-	
-	return(0);
-}
 
+	return (0);
+}

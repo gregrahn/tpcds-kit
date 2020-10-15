@@ -32,7 +32,7 @@
  * 
  * Contributors:
  * Gradient Systems
- */ 
+ */
 #include "config.h"
 #include "porting.h"
 #include "decimal.h"
@@ -57,22 +57,22 @@ extern rng_t Streams[];
 struct W_STORE_SALES_TBL g_w_store_sales;
 ds_key_t skipDays(int nTable, ds_key_t *pRemainder);
 static int *pItemPermutation,
-   nItemCount,
+	nItemCount,
 	nItemIndex;
 static ds_key_t jDate,
-   kNewDateIndex;
+	kNewDateIndex;
 
 /*
 * mk_store_sales
 */
 static void
-mk_master (void *row, ds_key_t index)
+mk_master(void *row, ds_key_t index)
 {
 	struct W_STORE_SALES_TBL *r;
 	static decimal_t dMin,
 		dMax;
 	static int bInit = 0,
-		nMaxItemCount;
+			   nMaxItemCount;
 	static ds_key_t kNewDateIndex = 0;
 
 	if (row == NULL)
@@ -82,57 +82,55 @@ mk_master (void *row, ds_key_t index)
 
 	if (!bInit)
 	{
-      strtodec (&dMin, "1.00");
-      strtodec (&dMax, "100000.00");
+		strtodec(&dMin, "1.00");
+		strtodec(&dMax, "100000.00");
 		nMaxItemCount = 20;
 		jDate = skipDays(STORE_SALES, &kNewDateIndex);
 		pItemPermutation = makePermutation(NULL, nItemCount = (int)getIDCount(ITEM), SS_PERMUTATION);
-		
+
 		bInit = 1;
 	}
 
-	
-   while (index > kNewDateIndex)	/* need to move to a new date */
-   {
-      jDate += 1;
-      kNewDateIndex += dateScaling(STORE_SALES, jDate);
-   }
-		r->ss_sold_store_sk = mk_join (SS_SOLD_STORE_SK, STORE, 1);
-		r->ss_sold_time_sk = mk_join (SS_SOLD_TIME_SK, TIME, 1);
-		r->ss_sold_date_sk = mk_join (SS_SOLD_DATE_SK, DATE, 1);
-		r->ss_sold_customer_sk = mk_join (SS_SOLD_CUSTOMER_SK, CUSTOMER, 1);
-		r->ss_sold_cdemo_sk = mk_join (SS_SOLD_CDEMO_SK, CUSTOMER_DEMOGRAPHICS, 1);
-		r->ss_sold_hdemo_sk = mk_join (SS_SOLD_HDEMO_SK, HOUSEHOLD_DEMOGRAPHICS, 1);
-		r->ss_sold_addr_sk = mk_join (SS_SOLD_ADDR_SK, CUSTOMER_ADDRESS, 1);
-		r->ss_ticket_number = index;
-		genrand_integer(&nItemIndex, DIST_UNIFORM, 1, nItemCount, 0, SS_SOLD_ITEM_SK);
+	while (index > kNewDateIndex) /* need to move to a new date */
+	{
+		jDate += 1;
+		kNewDateIndex += dateScaling(STORE_SALES, jDate);
+	}
+	r->ss_sold_store_sk = mk_join(SS_SOLD_STORE_SK, STORE, 1);
+	r->ss_sold_time_sk = mk_join(SS_SOLD_TIME_SK, TIME, 1);
+	r->ss_sold_date_sk = mk_join(SS_SOLD_DATE_SK, DATE, 1);
+	r->ss_sold_customer_sk = mk_join(SS_SOLD_CUSTOMER_SK, CUSTOMER, 1);
+	r->ss_sold_cdemo_sk = mk_join(SS_SOLD_CDEMO_SK, CUSTOMER_DEMOGRAPHICS, 1);
+	r->ss_sold_hdemo_sk = mk_join(SS_SOLD_HDEMO_SK, HOUSEHOLD_DEMOGRAPHICS, 1);
+	r->ss_sold_addr_sk = mk_join(SS_SOLD_ADDR_SK, CUSTOMER_ADDRESS, 1);
+	r->ss_ticket_number = index;
+	genrand_integer(&nItemIndex, DIST_UNIFORM, 1, nItemCount, 0, SS_SOLD_ITEM_SK);
 
-      return;
+	return;
 }
 
-
 static void
-mk_detail (void *row, int bPrint)
+mk_detail(void *row, int bPrint)
 {
-int nTemp;
-struct W_STORE_RETURNS_TBL ReturnRow;
-struct W_STORE_SALES_TBL *r;
-tdef *pT = getSimpleTdefsByNumber(STORE_SALES);
+	int nTemp;
+	struct W_STORE_RETURNS_TBL ReturnRow;
+	struct W_STORE_SALES_TBL *r;
+	tdef *pT = getSimpleTdefsByNumber(STORE_SALES);
 
 	if (row == NULL)
 		r = &g_w_store_sales;
 	else
 		r = row;
 
-   nullSet(&pT->kNullBitMap, SS_NULLS);
+	nullSet(&pT->kNullBitMap, SS_NULLS);
 	/* 
 	 * items need to be unique within an order
 	 * use a sequence within the permutation 
 	 */
 	if (++nItemIndex > nItemCount)
-      nItemIndex = 1;
-   r->ss_sold_item_sk = matchSCDSK(getPermutationEntry(pItemPermutation, nItemIndex), r->ss_sold_date_sk, ITEM);
-	r->ss_sold_promo_sk = mk_join (SS_SOLD_PROMO_SK, PROMOTION, 1);
+		nItemIndex = 1;
+	r->ss_sold_item_sk = matchSCDSK(getPermutationEntry(pItemPermutation, nItemIndex), r->ss_sold_date_sk, ITEM);
+	r->ss_sold_promo_sk = mk_join(SS_SOLD_PROMO_SK, PROMOTION, 1);
 	set_pricing(SS_PRICING, &r->ss_pricing);
 
 	/** 
@@ -142,13 +140,13 @@ tdef *pT = getSimpleTdefsByNumber(STORE_SALES);
 	if (nTemp < SR_RETURN_PCT)
 	{
 		mk_w_store_returns(&ReturnRow, 1);
-      if (bPrint)
-         pr_w_store_returns(&ReturnRow);
+		if (bPrint)
+			pr_w_store_returns(&ReturnRow);
 	}
 
-   if (bPrint)
-      pr_w_store_sales(NULL);
-	
+	if (bPrint)
+		pr_w_store_sales(NULL);
+
 	return;
 }
 
@@ -166,11 +164,10 @@ tdef *pT = getSimpleTdefsByNumber(STORE_SALES);
 * Side Effects:
 * TODO: None
 */
-int
-pr_w_store_sales(void *row)
+int pr_w_store_sales(void *row)
 {
 	struct W_STORE_SALES_TBL *r;
-	
+
 	if (row == NULL)
 		r = &g_w_store_sales;
 	else
@@ -202,9 +199,38 @@ pr_w_store_sales(void *row)
 	print_decimal(SS_PRICING_NET_PROFIT, &r->ss_pricing.net_profit, 0);
 	print_end(STORE_SALES);
 
-	return(0);
-}
+	// print schema out to file
+	if (SCHEMA_W < 1)
+	{
+		print_json_schema_start(STORE_SALES);
+		print_json_schema_col(STORE_SALES, "SS_SOLD_DATE_SK", "STRING");
+		print_json_schema_col(STORE_SALES, "SS_SOLD_TIME_SK", "STRING");
+		print_json_schema_col(STORE_SALES, "SS_SOLD_ITEM_SK", "STRING");
+		print_json_schema_col(STORE_SALES, "SS_SOLD_CUSTOMER_SK", "STRING");
+		print_json_schema_col(STORE_SALES, "SS_SOLD_CDEMO_SK", "STRING");
+		print_json_schema_col(STORE_SALES, "SS_SOLD_HDEMO_SK", "STRING");
+		print_json_schema_col(STORE_SALES, "SS_SOLD_ADDR_SK", "STRING");
+		print_json_schema_col(STORE_SALES, "SS_SOLD_STORE_SK", "STRING");
+		print_json_schema_col(STORE_SALES, "SS_SOLD_PROMO_SK", "STRING");
+		print_json_schema_col(STORE_SALES, "SR_TICKET_NUMBER", "STRING");
+		print_json_schema_col(STORE_SALES, "SR_PRICING_QUANTITY", "INT");
+		print_json_schema_col(STORE_SALES, "SS_PRICING_WHOLESALE_COST", "DECIMAL(7,2)");
+		print_json_schema_col(STORE_SALES, "SS_PRICING_LIST_PRICE", "DECIMAL(7,2)");
+		print_json_schema_col(STORE_SALES, "SS_PRICING_SALES_PRICE", "DECIMAL(7,2)");
+		print_json_schema_col(STORE_SALES, "SS_PRICING_COUPON_AMT", "DECIMAL(7,2)");
+		print_json_schema_col(STORE_SALES, "SS_PRICING_EXT_SALES_PRICE", "DECIMAL(7,2)");
+		print_json_schema_col(STORE_SALES, "SS_PRICING_EXT_WHOLESALE_COST", "DECIMAL(7,2)");
+		print_json_schema_col(STORE_SALES, "SS_PRICING_EXT_LIST_PRICE", "DECIMAL(7,2)");
+		print_json_schema_end(STORE_SALES, "SS_PRICING_EXT_TAX", "DECIMAL(7,2)");
+		print_json_schema_col(STORE_SALES, "SS_PRICING_COUPON_AMT", "DECIMAL(7,2)");
+		print_json_schema_col(STORE_SALES, "SS_PRICING_NET_PAID", "DECIMAL(7,2)");
+		print_json_schema_col(STORE_SALES, "SS_PRICING_NET_PAID_INC_TAX", "DECIMAL(7,2)");
+		print_json_schema_end(STORE_SALES, "SS_PRICING_NET_PROFIT", "DECIMAL(7,2)");
+	}
+	SCHEMA_W = 1;
 
+	return (0);
+}
 
 /*
 * Routine: 
@@ -220,44 +246,41 @@ pr_w_store_sales(void *row)
 * Side Effects:
 * TODO: None
 */
-int 
-ld_w_store_sales(void *pSrc)
+int ld_w_store_sales(void *pSrc)
 {
 	struct W_STORE_SALES_TBL *r;
-		
+
 	if (pSrc == NULL)
 		r = &g_w_store_sales;
 	else
 		r = pSrc;
-	
-	return(0);
+
+	return (0);
 }
 
 /*
 * mk_store_sales
 */
-int
-mk_w_store_sales (void *row, ds_key_t index)
+int mk_w_store_sales(void *row, ds_key_t index)
 {
 	int nLineitems,
 		i;
 
-   /* build the static portion of an order */
+	/* build the static portion of an order */
 	mk_master(row, index);
 
-   /* set the number of lineitems and build them */
+	/* set the number of lineitems and build them */
 	genrand_integer(&nLineitems, DIST_UNIFORM, 8, 16, 0, SS_TICKET_NUMBER);
-   for (i = 1; i <= nLineitems; i++)
-   {
-	   mk_detail(NULL, 1);
-   }
+	for (i = 1; i <= nLineitems; i++)
+	{
+		mk_detail(NULL, 1);
+	}
 
-   /**
+	/**
    * and finally return 1 since we have already printed the rows
-   */	
-   return (1);
+   */
+	return (1);
 }
-
 
 /*
 * Routine: 
@@ -273,8 +296,7 @@ mk_w_store_sales (void *row, ds_key_t index)
 * Side Effects:
 * TODO: None
 */
-int
-vld_w_store_sales(int nTable, ds_key_t kRow, int *Permutation)
+int vld_w_store_sales(int nTable, ds_key_t kRow, int *Permutation)
 {
 	int nLineitem,
 		nMaxLineitem,
@@ -282,7 +304,7 @@ vld_w_store_sales(int nTable, ds_key_t kRow, int *Permutation)
 
 	row_skip(nTable, kRow - 1);
 	row_skip(STORE_RETURNS, kRow - 1);
-	jDate = skipDays(STORE_SALES, &kNewDateIndex);		
+	jDate = skipDays(STORE_SALES, &kNewDateIndex);
 	mk_master(NULL, kRow);
 	genrand_integer(&nMaxLineitem, DIST_UNIFORM, 8, 16, 9, SS_TICKET_NUMBER);
 	genrand_integer(&nLineitem, DIST_UNIFORM, 1, nMaxLineitem, 0, SS_PRICING_QUANTITY);
@@ -292,6 +314,5 @@ vld_w_store_sales(int nTable, ds_key_t kRow, int *Permutation)
 	}
 	mk_detail(NULL, 1);
 
-	return(0);
+	return (0);
 }
-

@@ -32,7 +32,7 @@
  * 
  * Contributors:
  * Gradient Systems
- */ 
+ */
 #include "config.h"
 #include "porting.h"
 #include <stdio.h>
@@ -63,12 +63,11 @@ struct W_CUSTOMER_TBL g_w_customer;
 * Side Effects:
 * TODO: 
 */
-int
-mk_w_customer (void * row, ds_key_t index)
+int mk_w_customer(void *row, ds_key_t index)
 {
 	int res = 0,
 		nTemp;
-	
+
 	static int nBaseDate;
 	/* begin locals declarations */
 	int nNameIndex,
@@ -76,12 +75,12 @@ mk_w_customer (void * row, ds_key_t index)
 	struct W_CUSTOMER_TBL *r;
 	static int bInit = 0;
 	date_t dtTemp;
-	static date_t dtBirthMin, 
+	static date_t dtBirthMin,
 		dtBirthMax,
 		dtToday,
 		dt1YearAgo,
 		dt10YearsAgo;
-   tdef *pT = getSimpleTdefsByNumber(CUSTOMER);
+	tdef *pT = getSimpleTdefsByNumber(CUSTOMER);
 
 	if (row == NULL)
 		r = &g_w_customer;
@@ -89,8 +88,8 @@ mk_w_customer (void * row, ds_key_t index)
 		r = row;
 
 	if (!bInit)
-	{			
-        nBaseDate = dttoj (strtodate (DATE_MINIMUM));
+	{
+		nBaseDate = dttoj(strtodate(DATE_MINIMUM));
 		strtodt(&dtBirthMax, "1992-12-31");
 		strtodt(&dtBirthMin, "1924-01-01");
 		strtodt(&dtToday, TODAYS_DATE);
@@ -99,29 +98,29 @@ mk_w_customer (void * row, ds_key_t index)
 
 		bInit = 1;
 	}
-	
+
 	nullSet(&pT->kNullBitMap, C_NULLS);
 	r->c_customer_sk = index;
 	mk_bkey(&r->c_customer_id[0], index, C_CUSTOMER_ID);
-	genrand_integer (&nTemp, DIST_UNIFORM, 1, 100, 0, C_PREFERRED_CUST_FLAG);
+	genrand_integer(&nTemp, DIST_UNIFORM, 1, 100, 0, C_PREFERRED_CUST_FLAG);
 	r->c_preferred_cust_flag = (nTemp < C_PREFERRED_PCT) ? 1 : 0;
 
 	/* demographic keys are a composite of values. rebuild them a la bitmap_to_dist */
-	r->c_current_hdemo_sk = 
+	r->c_current_hdemo_sk =
 		mk_join(C_CURRENT_HDEMO_SK, HOUSEHOLD_DEMOGRAPHICS, 1);
 
-	r->c_current_cdemo_sk = 
+	r->c_current_cdemo_sk =
 		mk_join(C_CURRENT_CDEMO_SK, CUSTOMER_DEMOGRAPHICS, 1);
 
 	r->c_current_addr_sk =
-		mk_join (C_CURRENT_ADDR_SK, CUSTOMER_ADDRESS, r->c_customer_sk);
+		mk_join(C_CURRENT_ADDR_SK, CUSTOMER_ADDRESS, r->c_customer_sk);
 	nNameIndex =
-		pick_distribution (&r->c_first_name,
-		"first_names", 1, 3, C_FIRST_NAME);
-	pick_distribution (&r->c_last_name, "last_names", 1, 1, C_LAST_NAME);
-	dist_weight (&nGender, "first_names", nNameIndex, 2);
-	pick_distribution (&r->c_salutation,
-		"salutations", 1, (nGender == 0) ? 2 : 3, C_SALUTATION);
+		pick_distribution(&r->c_first_name,
+						  "first_names", 1, 3, C_FIRST_NAME);
+	pick_distribution(&r->c_last_name, "last_names", 1, 1, C_LAST_NAME);
+	dist_weight(&nGender, "first_names", nNameIndex, 2);
+	pick_distribution(&r->c_salutation,
+					  "salutations", 1, (nGender == 0) ? 2 : 3, C_SALUTATION);
 
 	genrand_date(&dtTemp, DIST_UNIFORM, &dtBirthMin, &dtBirthMax, NULL, C_BIRTH_DAY);
 	r->c_birth_day = dtTemp.day;
@@ -132,11 +131,10 @@ mk_w_customer (void * row, ds_key_t index)
 	r->c_last_review_date = dtTemp.julian;
 	genrand_date(&dtTemp, DIST_UNIFORM, &dt10YearsAgo, &dtToday, NULL, C_FIRST_SALES_DATE_ID);
 	r->c_first_sales_date_id = dtTemp.julian;
-    r->c_first_shipto_date_id = r->c_first_sales_date_id + 30;
+	r->c_first_shipto_date_id = r->c_first_sales_date_id + 30;
 
-    pick_distribution(&r->c_birth_country, "countries", 1, 1, C_BIRTH_COUNTRY);
+	pick_distribution(&r->c_birth_country, "countries", 1, 1, C_BIRTH_COUNTRY);
 
-	
 	return (res);
 }
 
@@ -154,8 +152,7 @@ mk_w_customer (void * row, ds_key_t index)
 * Side Effects:
 * TODO: None
 */
-int
-pr_w_customer(void *row)
+int pr_w_customer(void *row)
 {
 	struct W_CUSTOMER_TBL *r;
 
@@ -185,7 +182,33 @@ pr_w_customer(void *row)
 	print_integer(C_LAST_REVIEW_DATE, r->c_last_review_date, 0);
 	print_end(CUSTOMER);
 
-	return(0);
+	// print schema out to file
+	if (SCHEMA_W < 1)
+	{
+
+		print_json_schema_start(CUSTOMER);
+		print_json_schema_col(CUSTOMER, "C_CUSTOMER_SK", "STRING");
+		print_json_schema_col(CUSTOMER, "C_CUSTOMER_ID", "STRING");
+		print_json_schema_col(CUSTOMER, "C_CURRENT_CDEMO_SK", "DATE");
+		print_json_schema_col(CUSTOMER, "C_CURRENT_HDEMO_SK", "INT");
+		print_json_schema_col(CUSTOMER, "C_CURRENT_ADDR_SK", "INT");
+		print_json_schema_col(CUSTOMER, "C_FIRST_SHIPTO_DATE_ID", "INT");
+		print_json_schema_col(CUSTOMER, "C_FIRST_SALES_DATE_ID", "INT");
+		print_json_schema_col(CUSTOMER, "C_SALUTATION", "INT");
+		print_json_schema_col(CUSTOMER, "C_FIRST_NAME", "INT");
+		print_json_schema_col(CUSTOMER, "C_LAST_NAME", "INT");
+		print_json_schema_col(CUSTOMER, "C_PREFERRED_CUST_FLAG", "INT");
+		print_json_schema_col(CUSTOMER, "C_BIRTH_DAY", "INT");
+		print_json_schema_col(CUSTOMER, "C_BIRTH_MONTH", "INT");
+		print_json_schema_col(CUSTOMER, "C_BIRTH_YEAR", "INT");
+		print_json_schema_col(CUSTOMER, "C_BIRTH_COUNTRY", "STRING");
+		print_json_schema_col(CUSTOMER, "C_LOGIN", "STRING");
+		print_json_schema_col(CUSTOMER, "C_EMAIL_ADDRESS", "STRING");
+		print_json_schema_end(CUSTOMER, "C_LAST_REVIEW_DATE", "STRING");
+	}
+	SCHEMA_W = 1;
+
+	return (0);
 }
 
 /*
@@ -202,8 +225,7 @@ pr_w_customer(void *row)
 * Side Effects:
 * TODO: None
 */
-int
-ld_w_customer(void *row)
+int ld_w_customer(void *row)
 {
 	struct W_CUSTOMER_TBL *r;
 
@@ -212,6 +234,5 @@ ld_w_customer(void *row)
 	else
 		r = row;
 
-	return(0);
+	return (0);
 }
-

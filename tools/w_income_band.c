@@ -32,7 +32,7 @@
  * 
  * Contributors:
  * Gradient Systems
- */ 
+ */
 #include "config.h"
 #include "porting.h"
 #include <stdio.h>
@@ -46,17 +46,17 @@
 #include "tdefs.h"
 
 struct W_INCOME_BAND_TBL g_w_income_band;
+static int SCHEMA_W;
 
 /*
 * mk_income_band
 */
-int
-mk_w_income_band (void* row, ds_key_t index)
+int mk_w_income_band(void *row, ds_key_t index)
 {
 	int res = 0;
 	struct W_INCOME_BAND_TBL *r;
 	static int bInit = 0;
-   tdef *pTdef = getSimpleTdefsByNumber(INCOME_BAND);
+	tdef *pTdef = getSimpleTdefsByNumber(INCOME_BAND);
 
 	if (row == NULL)
 		r = &g_w_income_band;
@@ -65,15 +65,15 @@ mk_w_income_band (void* row, ds_key_t index)
 
 	if (!bInit)
 	{
-        /* Make exceptions to the 1-rng-call-per-row rule */
+		/* Make exceptions to the 1-rng-call-per-row rule */
 		bInit = 1;
 	}
-	
+
 	nullSet(&pTdef->kNullBitMap, IB_NULLS);
 	r->ib_income_band_id = (long)index;
-	dist_member (&r->ib_lower_bound, "income_band", (long)index, 1);
-	dist_member (&r->ib_upper_bound, "income_band", (long)index, 2);
-	
+	dist_member(&r->ib_lower_bound, "income_band", (long)index, 1);
+	dist_member(&r->ib_upper_bound, "income_band", (long)index, 2);
+
 	return (res);
 }
 
@@ -91,23 +91,32 @@ mk_w_income_band (void* row, ds_key_t index)
 * Side Effects:
 * TODO: None
 */
-int
-pr_w_income_band(void *row)
+int pr_w_income_band(void *row)
 {
 	struct W_INCOME_BAND_TBL *r;
 
 	if (row == NULL)
 		r = &g_w_income_band;
 	else
-		r = row;	
-	
+		r = row;
+
 	print_start(INCOME_BAND);
 	print_integer(IB_INCOME_BAND_ID, r->ib_income_band_id, 1);
 	print_integer(IB_LOWER_BOUND, r->ib_lower_bound, 1);
 	print_integer(IB_UPPER_BOUND, r->ib_upper_bound, 0);
 	print_end(INCOME_BAND);
 
-	return(0);
+	// print schema out to file
+	if (SCHEMA_W < 1)
+	{
+		print_json_schema_start(INCOME_BAND);
+		print_json_schema_col(INCOME_BAND, "IB_INCOME_BAND_ID", "STRING");
+		print_json_schema_col(INCOME_BAND, "IB_LOWER_BOUND", "STRING");
+		print_json_schema_end(INCOME_BAND, "IB_UPPER_BOUND", "STRING");
+	}
+	SCHEMA_W = 1;
+
+	return (0);
 }
 
 /*
@@ -124,16 +133,14 @@ pr_w_income_band(void *row)
 * Side Effects:
 * TODO: None
 */
-int 
-ld_w_income_band(void *pSrc)
+int ld_w_income_band(void *pSrc)
 {
 	struct W_INCOME_BAND_TBL *r;
-		
+
 	if (pSrc == NULL)
 		r = &g_w_income_band;
 	else
 		r = pSrc;
-	
-	return(0);
-}
 
+	return (0);
+}

@@ -32,7 +32,7 @@
  * 
  * Contributors:
  * Gradient Systems
- */ 
+ */
 #include "config.h"
 #include "porting.h"
 #include <stdio.h>
@@ -47,7 +47,7 @@
 #include "tdefs.h"
 
 struct W_PROMOTION_TBL g_w_promotion;
-
+static int SCHEMA_W;
 /*
 * Routine: mk_promotion
 * Purpose: populate the promotion table
@@ -64,19 +64,18 @@ struct W_PROMOTION_TBL g_w_promotion;
 * 20020829 jms RNG usage on p_promo_name may be too large
 * 20020829 jms RNG usage on P_CHANNEL_DETAILS may be too large
 */
-int
-mk_w_promotion(void *pDest, ds_key_t index)
+int mk_w_promotion(void *pDest, ds_key_t index)
 {
 	static int bInit = 0;
 	struct W_PROMOTION_TBL *r;
 	int res = 0;
-	
+
 	/* begin locals declarations */
 	static date_t *start_date;
 	ds_key_t nTemp;
 	int nFlags;
-   tdef *pTdef = getSimpleTdefsByNumber(PROMOTION);
-	
+	tdef *pTdef = getSimpleTdefsByNumber(PROMOTION);
+
 	if (pDest == NULL)
 		r = &g_w_promotion;
 	else
@@ -86,30 +85,30 @@ mk_w_promotion(void *pDest, ds_key_t index)
 	{
 		memset(&g_w_promotion, 0, sizeof(struct W_PROMOTION_TBL));
 		bInit = 1;
-        start_date = strtodate (DATE_MINIMUM);
+		start_date = strtodate(DATE_MINIMUM);
 	}
-	
+
 	nullSet(&pTdef->kNullBitMap, P_NULLS);
 	r->p_promo_sk = index;
 	mk_bkey(&r->p_promo_id[0], index, P_PROMO_ID);
 	nTemp = index;
 	r->p_start_date_id =
 		start_date->julian +
-		genrand_integer (NULL, DIST_UNIFORM,
-		PROMO_START_MIN, PROMO_START_MAX, PROMO_START_MEAN,
-		P_START_DATE_ID);
+		genrand_integer(NULL, DIST_UNIFORM,
+						PROMO_START_MIN, PROMO_START_MAX, PROMO_START_MEAN,
+						P_START_DATE_ID);
 	r->p_end_date_id =
-		r->p_start_date_id + genrand_integer (NULL, DIST_UNIFORM,
-		PROMO_LEN_MIN,
-		PROMO_LEN_MAX,
-		PROMO_LEN_MEAN,
-		P_END_DATE_ID);
+		r->p_start_date_id + genrand_integer(NULL, DIST_UNIFORM,
+											 PROMO_LEN_MIN,
+											 PROMO_LEN_MAX,
+											 PROMO_LEN_MEAN,
+											 P_END_DATE_ID);
 	r->p_item_sk = mk_join(P_ITEM_SK, ITEM, 1);
-	strtodec (&r->p_cost, "1000.00");
+	strtodec(&r->p_cost, "1000.00");
 	r->p_response_target = 1;
-	mk_word (&r->p_promo_name[0], "syllables", (int) index,
-		PROMO_NAME_LEN, P_PROMO_NAME);
-	nFlags = genrand_integer (NULL, DIST_UNIFORM, 0, 511, 0, P_CHANNEL_DMAIL);
+	mk_word(&r->p_promo_name[0], "syllables", (int)index,
+			PROMO_NAME_LEN, P_PROMO_NAME);
+	nFlags = genrand_integer(NULL, DIST_UNIFORM, 0, 511, 0, P_CHANNEL_DMAIL);
 	r->p_channel_dmail = nFlags & 0x01;
 	nFlags <<= 1;
 	r->p_channel_email = nFlags & 0x01;
@@ -127,12 +126,11 @@ mk_w_promotion(void *pDest, ds_key_t index)
 	r->p_channel_demo = nFlags & 0x01;
 	nFlags <<= 1;
 	r->p_discount_active = nFlags & 0x01;
-	gen_text (&r->p_channel_details[0], PROMO_DETAIL_LEN_MIN,
-		PROMO_DETAIL_LEN_MAX, P_CHANNEL_DETAILS);
-	pick_distribution (&r->p_purpose, "promo_purpose", 1, 1,
-		P_PURPOSE);
-	
-	
+	gen_text(&r->p_channel_details[0], PROMO_DETAIL_LEN_MIN,
+			 PROMO_DETAIL_LEN_MAX, P_CHANNEL_DETAILS);
+	pick_distribution(&r->p_purpose, "promo_purpose", 1, 1,
+					  P_PURPOSE);
+
 	return (res);
 }
 
@@ -150,8 +148,7 @@ mk_w_promotion(void *pDest, ds_key_t index)
 * Side Effects:
 * TODO: None
 */
-int
-pr_w_promotion(void *row)
+int pr_w_promotion(void *row)
 {
 	struct W_PROMOTION_TBL *r;
 
@@ -182,9 +179,34 @@ pr_w_promotion(void *row)
 	print_boolean(P_DISCOUNT_ACTIVE, r->p_discount_active, 0);
 	print_end(PROMOTION);
 
-	return(0);
-}
+	// print schema out to file
+	if (SCHEMA_W < 1)
+	{
+		print_json_schema_start(PROMOTION);
+		print_json_schema_col(PROMOTION, "P_PROMO_SK", "STRING");
+		print_json_schema_col(PROMOTION, "P_PROMO_ID", "STRING");
+		print_json_schema_col(PROMOTION, "P_START_DATE_ID", "DATE");
+		print_json_schema_col(PROMOTION, "P_END_DATE_ID", "DATE");
+		print_json_schema_col(PROMOTION, "P_ITEM_SK", "STRING");
+		print_json_schema_col(PROMOTION, "P_COST", "DECIMAL(7,2)");
+		print_json_schema_col(PROMOTION, "P_RESPONSE_TARGET", "INT");
+		print_json_schema_col(PROMOTION, "P_PROMO_NAME", "STRING");
+		print_json_schema_col(PROMOTION, "I_BRAND", "STRING");
+		print_json_schema_col(PROMOTION, "P_CHANNEL_DMAIL", "STRING");
+		print_json_schema_col(PROMOTION, "P_CHANNEL_EMAIL", "STRING");
+		print_json_schema_col(PROMOTION, "P_CHANNEL_CATALOG", "STRING");
+		print_json_schema_col(PROMOTION, "P_CHANNEL_TV", "STRING");
+		print_json_schema_col(PROMOTION, "P_CHANNEL_RADIO", "INT");
+		print_json_schema_col(PROMOTION, "P_CHANNEL_PRESS", "STRING");
+		print_json_schema_col(PROMOTION, "P_CHANNEL_EVENT", "STRING");
+		print_json_schema_col(PROMOTION, "P_CHANNEL_DEMO", "STRING");
+		print_json_schema_col(PROMOTION, "P_CHANNEL_DETAILS", "STRING");
+		print_json_schema_end(PROMOTION, "P_DISCOUNT_ACTIVE", "STRING");
+	}
+	SCHEMA_W = 1;
 
+	return (0);
+}
 
 /*
 * Routine: 
@@ -200,16 +222,14 @@ pr_w_promotion(void *row)
 * Side Effects:
 * TODO: None
 */
-int 
-ld_w_promotion(void *pSrc)
+int ld_w_promotion(void *pSrc)
 {
 	struct W_PROMOTION_TBL *r;
-		
+
 	if (pSrc == NULL)
 		r = &g_w_promotion;
 	else
 		r = pSrc;
-	
-	return(0);
-}
 
+	return (0);
+}

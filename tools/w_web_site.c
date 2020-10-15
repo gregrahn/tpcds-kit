@@ -32,7 +32,7 @@
  * 
  * Contributors:
  * Gradient Systems
- */ 
+ */
 #include "config.h"
 #include "porting.h"
 #include <stdio.h>
@@ -73,12 +73,11 @@ static struct W_WEB_SITE_TBL g_OldValues;
 * Side Effects:
 * TODO: 
 */
-int
-mk_w_web_site (void *row, ds_key_t index)
+int mk_w_web_site(void *row, ds_key_t index)
 {
 	int32_t res = 0,
-		nFieldChangeFlags,
-		bFirstRecord = 0;
+			nFieldChangeFlags,
+			bFirstRecord = 0;
 	static date_t *dToday;
 	static decimal_t dMinTaxPercentage,
 		dMaxTaxPercentage;
@@ -89,9 +88,9 @@ mk_w_web_site (void *row, ds_key_t index)
 		*sName1,
 		*sName2;
 	struct W_WEB_SITE_TBL *r,
-				*rOldValues = &g_OldValues;
-   tdef *pT = getSimpleTdefsByNumber(WEB_SITE);
-	
+		*rOldValues = &g_OldValues;
+	tdef *pT = getSimpleTdefsByNumber(WEB_SITE);
+
 	if (row == NULL)
 		r = &g_w_web_site;
 	else
@@ -119,66 +118,64 @@ mk_w_web_site (void *row, ds_key_t index)
 	{
 		r->web_open_date = mk_join(WEB_OPEN_DATE, DATE, index);
 		r->web_close_date = mk_join(WEB_CLOSE_DATE, DATE, index);
-	if (r->web_close_date > r->web_rec_end_date_id)
-		r->web_close_date = -1;
+		if (r->web_close_date > r->web_rec_end_date_id)
+			r->web_close_date = -1;
 		sprintf(r->web_name, "site_%d", (int)(index / 6));
 		bFirstRecord = 1;
 	}
-	
- /*
+
+	/*
   * this is  where we select the random number that controls if a field changes from 
   * one record to the next.
   */
 	nFieldChangeFlags = next_random(WEB_SCD);
 
-
 	/* the rest of the record in a history-keeping dimension can either be a new data value or not;
 	 * use a random number and its bit pattern to determine which fields to replace and which to retain
-	 */	
-	pick_distribution (&sName1, "first_names", 1, 1, WEB_MANAGER);
-	pick_distribution (&sName2, "last_names", 1, 1, WEB_MANAGER);
-	sprintf (r->web_manager, "%s %s", sName1, sName2);
-	changeSCD(SCD_CHAR, &r->web_manager, &rOldValues->web_manager,  &nFieldChangeFlags,  bFirstRecord);
+	 */
+	pick_distribution(&sName1, "first_names", 1, 1, WEB_MANAGER);
+	pick_distribution(&sName2, "last_names", 1, 1, WEB_MANAGER);
+	sprintf(r->web_manager, "%s %s", sName1, sName2);
+	changeSCD(SCD_CHAR, &r->web_manager, &rOldValues->web_manager, &nFieldChangeFlags, bFirstRecord);
 
-	genrand_integer (&r->web_market_id, DIST_UNIFORM, 1, 6, 0, WEB_MARKET_ID);
-	changeSCD(SCD_INT, &r->web_market_id, &rOldValues->web_market_id,  &nFieldChangeFlags,  bFirstRecord);
+	genrand_integer(&r->web_market_id, DIST_UNIFORM, 1, 6, 0, WEB_MARKET_ID);
+	changeSCD(SCD_INT, &r->web_market_id, &rOldValues->web_market_id, &nFieldChangeFlags, bFirstRecord);
 
-	gen_text (r->web_market_class, 20, RS_WEB_MARKET_CLASS,
-		WEB_MARKET_CLASS);
-	changeSCD(SCD_CHAR, &r->web_market_class, &rOldValues->web_market_class,  &nFieldChangeFlags,  bFirstRecord);
+	gen_text(r->web_market_class, 20, RS_WEB_MARKET_CLASS,
+			 WEB_MARKET_CLASS);
+	changeSCD(SCD_CHAR, &r->web_market_class, &rOldValues->web_market_class, &nFieldChangeFlags, bFirstRecord);
 
-	gen_text (r->web_market_desc, 20, RS_WEB_MARKET_DESC,
-		WEB_MARKET_DESC);
-	changeSCD(SCD_CHAR, &r->web_market_desc, &rOldValues->web_market_desc,  &nFieldChangeFlags,  bFirstRecord);
+	gen_text(r->web_market_desc, 20, RS_WEB_MARKET_DESC,
+			 WEB_MARKET_DESC);
+	changeSCD(SCD_CHAR, &r->web_market_desc, &rOldValues->web_market_desc, &nFieldChangeFlags, bFirstRecord);
 
-	pick_distribution (&sName1, "first_names", 1, 1, WEB_MARKET_MANAGER);
-	pick_distribution (&sName2, "last_names", 1, 1, WEB_MARKET_MANAGER);
-	sprintf (r->web_market_manager, "%s %s", sName1, sName2);
-	changeSCD(SCD_CHAR, &r->web_market_manager, &rOldValues->web_market_manager,  &nFieldChangeFlags,  bFirstRecord);
+	pick_distribution(&sName1, "first_names", 1, 1, WEB_MARKET_MANAGER);
+	pick_distribution(&sName2, "last_names", 1, 1, WEB_MARKET_MANAGER);
+	sprintf(r->web_market_manager, "%s %s", sName1, sName2);
+	changeSCD(SCD_CHAR, &r->web_market_manager, &rOldValues->web_market_manager, &nFieldChangeFlags, bFirstRecord);
 
-	genrand_integer (&r->web_company_id, DIST_UNIFORM, 1, 6, 0, 
-		WEB_COMPANY_ID);
-	changeSCD(SCD_INT, &r->web_company_id, &rOldValues->web_company_id,  &nFieldChangeFlags,  bFirstRecord);
+	genrand_integer(&r->web_company_id, DIST_UNIFORM, 1, 6, 0,
+					WEB_COMPANY_ID);
+	changeSCD(SCD_INT, &r->web_company_id, &rOldValues->web_company_id, &nFieldChangeFlags, bFirstRecord);
 
 	mk_word(r->web_company_name, "Syllables", r->web_company_id, RS_WEB_COMPANY_NAME, WEB_COMPANY_NAME);
-	changeSCD(SCD_CHAR, &r->web_company_name, &rOldValues->web_company_name,  &nFieldChangeFlags,  bFirstRecord);
+	changeSCD(SCD_CHAR, &r->web_company_name, &rOldValues->web_company_name, &nFieldChangeFlags, bFirstRecord);
 
 	mk_address(&r->web_address, WEB_ADDRESS);
-	changeSCD(SCD_PTR, &r->web_address.city, &rOldValues->web_address.city,  &nFieldChangeFlags,  bFirstRecord);
-	changeSCD(SCD_PTR, &r->web_address.county, &rOldValues->web_address.county,  &nFieldChangeFlags,  bFirstRecord);
-	changeSCD(SCD_INT, &r->web_address.gmt_offset, &rOldValues->web_address.gmt_offset,  &nFieldChangeFlags,  bFirstRecord);
-	changeSCD(SCD_PTR, &r->web_address.state, &rOldValues->web_address.state,  &nFieldChangeFlags,  bFirstRecord);
-	changeSCD(SCD_PTR, &r->web_address.street_type, &rOldValues->web_address.street_type,  &nFieldChangeFlags,  bFirstRecord);
-	changeSCD(SCD_PTR, &r->web_address.street_name1, &rOldValues->web_address.street_name1,  &nFieldChangeFlags,  bFirstRecord);
-	changeSCD(SCD_PTR, &r->web_address.street_name2, &rOldValues->web_address.street_name2,  &nFieldChangeFlags,  bFirstRecord);
-	changeSCD(SCD_INT, &r->web_address.street_num, &rOldValues->web_address.street_num,  &nFieldChangeFlags,  bFirstRecord);
-	changeSCD(SCD_INT, &r->web_address.zip, &rOldValues->web_address.zip,  &nFieldChangeFlags,  bFirstRecord);
+	changeSCD(SCD_PTR, &r->web_address.city, &rOldValues->web_address.city, &nFieldChangeFlags, bFirstRecord);
+	changeSCD(SCD_PTR, &r->web_address.county, &rOldValues->web_address.county, &nFieldChangeFlags, bFirstRecord);
+	changeSCD(SCD_INT, &r->web_address.gmt_offset, &rOldValues->web_address.gmt_offset, &nFieldChangeFlags, bFirstRecord);
+	changeSCD(SCD_PTR, &r->web_address.state, &rOldValues->web_address.state, &nFieldChangeFlags, bFirstRecord);
+	changeSCD(SCD_PTR, &r->web_address.street_type, &rOldValues->web_address.street_type, &nFieldChangeFlags, bFirstRecord);
+	changeSCD(SCD_PTR, &r->web_address.street_name1, &rOldValues->web_address.street_name1, &nFieldChangeFlags, bFirstRecord);
+	changeSCD(SCD_PTR, &r->web_address.street_name2, &rOldValues->web_address.street_name2, &nFieldChangeFlags, bFirstRecord);
+	changeSCD(SCD_INT, &r->web_address.street_num, &rOldValues->web_address.street_num, &nFieldChangeFlags, bFirstRecord);
+	changeSCD(SCD_INT, &r->web_address.zip, &rOldValues->web_address.zip, &nFieldChangeFlags, bFirstRecord);
 
 	genrand_decimal(&r->web_tax_percentage, DIST_UNIFORM, &dMinTaxPercentage, &dMaxTaxPercentage, NULL, WEB_TAX_PERCENTAGE);
-	changeSCD(SCD_DEC, &r->web_tax_percentage, &rOldValues->web_tax_percentage,  &nFieldChangeFlags,  bFirstRecord);
+	changeSCD(SCD_DEC, &r->web_tax_percentage, &rOldValues->web_tax_percentage, &nFieldChangeFlags, bFirstRecord);
 
-	
-	return(res);
+	return (res);
 }
 
 /*
@@ -195,13 +192,11 @@ mk_w_web_site (void *row, ds_key_t index)
 * Side Effects:
 * TODO: None
 */
-int
-pr_w_web_site(void *row)
+int pr_w_web_site(void *row)
 {
 	struct W_WEB_SITE_TBL *r;
 	char szStreetName[128];
 
-		
 	if (row == NULL)
 		r = &g_w_web_site;
 	else
@@ -243,7 +238,41 @@ pr_w_web_site(void *row)
 	print_decimal(WEB_TAX_PERCENTAGE, &r->web_tax_percentage, 0);
 	print_end(WEB_SITE);
 
-	return(0);
+	// print schema out to file
+	if (SCHEMA_W < 1)
+	{
+		print_json_schema_start(WEB_SITE);
+		print_json_schema_col(WEB_SITE, "WEB_SITE_SK", "STRING");
+		print_json_schema_col(WEB_SITE, "WEB_SITE_ID", "STRING");
+		print_json_schema_col(WEB_SITE, "WEB_REC_START_DATE_ID", "DATE");
+		print_json_schema_col(WEB_SITE, "WEB_REC_END_DATE_ID", "DATE");
+		print_json_schema_col(WEB_SITE, "WEB_CLOSED_DATE_ID", "STRING");
+		print_json_schema_col(WEB_SITE, "WEB_NAME", "STRING");
+		print_json_schema_col(WEB_SITE, "WEB_OPEN_DATE", "STRING");
+		print_json_schema_col(WEB_SITE, "WEB_CLOSE_DATE", "STRING");
+		print_json_schema_col(WEB_SITE, "WEB_CLASS", "STRING");
+		print_json_schema_col(WEB_SITE, "WEB_MANAGER", "STRING");
+		print_json_schema_col(WEB_SITE, "WEB_MARKET_ID", "INT");
+		print_json_schema_col(WEB_SITE, "WEB_MARKET_CLASS", "STRING");
+		print_json_schema_col(WEB_SITE, "WEB_MARKET_DESC", "STRING");
+		print_json_schema_col(WEB_SITE, "WEB_MARKET_MANAGER", "STRING");
+		print_json_schema_col(WEB_SITE, "WEB_COMPANY_ID", "INT");
+		print_json_schema_col(WEB_SITE, "WEB_COMPANY_NAME", "STRING");
+		print_json_schema_col(WEB_SITE, "WEB_ADDRESS_STREET_NUM", "STRING");
+		print_json_schema_col(WEB_SITE, "WEB_ADDRESS_STREET_NAME1", "STRING");
+		print_json_schema_col(WEB_SITE, "WEB_ADDRESS_STREET_TYPE", "STRING");
+		print_json_schema_col(WEB_SITE, "WEB_ADDRESS_SUITE_NUM", "STRING");
+		print_json_schema_col(WEB_SITE, "WEB_ADDRESS_CITY", "STRING");
+		print_json_schema_col(WEB_SITE, "WEB_ADDRESS_COUNTY", "STRING");
+		print_json_schema_col(WEB_SITE, "WEB_ADDRESS_STATE", "STRING");
+		print_json_schema_col(WEB_SITE, "WEB_ADDRESS_ZIP", "STRING");
+		print_json_schema_col(WEB_SITE, "WEB_ADDRESS_COUNTRY", "STRING");
+		print_json_schema_col(WEB_SITE, "WEB_ADDRESS_GMT_OFFSET", "INT");
+		print_json_schema_end(WEB_SITE, "WEB_TAX_PERCENTAGE", "DECIMAL(7,2)");
+	}
+	SCHEMA_W = 1;
+
+	return (0);
 }
 
 /*
@@ -260,16 +289,14 @@ pr_w_web_site(void *row)
 * Side Effects:
 * TODO: None
 */
-int 
-ld_w_web_site(void *pSrc)
+int ld_w_web_site(void *pSrc)
 {
 	struct W_WEB_SITE_TBL *r;
-		
+
 	if (pSrc == NULL)
 		r = &g_w_web_site;
 	else
 		r = pSrc;
-	
-	return(0);
-}
 
+	return (0);
+}

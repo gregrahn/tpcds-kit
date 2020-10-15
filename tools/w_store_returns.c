@@ -32,7 +32,7 @@
  * 
  * Contributors:
  * Gradient Systems
- */ 
+ */
 #include "config.h"
 #include "porting.h"
 #include <stdio.h>
@@ -49,6 +49,7 @@
 
 struct W_STORE_RETURNS_TBL g_w_store_returns;
 extern struct W_STORE_SALES_TBL g_w_store_sales;
+static int SCHEMA_W;
 
 /*
 * Routine: mk_store_returns()
@@ -64,20 +65,19 @@ extern struct W_STORE_SALES_TBL g_w_store_sales;
 * Side Effects:
 * TODO: None
 */
-int
-mk_w_store_returns (void * row, ds_key_t index)
+int mk_w_store_returns(void *row, ds_key_t index)
 {
 	int res = 0,
 		nTemp;
 	struct W_STORE_RETURNS_TBL *r;
 	struct W_STORE_SALES_TBL *sale = &g_w_store_sales;
 	static int bInit = 0;
-   tdef *pT = getSimpleTdefsByNumber(STORE_RETURNS);
-	
+	tdef *pT = getSimpleTdefsByNumber(STORE_RETURNS);
+
 	static decimal_t dMin,
 		dMax;
 	/* begin locals declarations */
-	
+
 	if (row == NULL)
 		r = &g_w_store_returns;
 	else
@@ -85,10 +85,10 @@ mk_w_store_returns (void * row, ds_key_t index)
 
 	if (!bInit)
 	{
-        strtodec (&dMin, "1.00");
-        strtodec (&dMax, "100000.00");
+		strtodec(&dMin, "1.00");
+		strtodec(&dMax, "100000.00");
 	}
-	
+
 	nullSet(&pT->kNullBitMap, SR_NULLS);
 	/*
 	* Some of the information in the return is taken from the original sale
@@ -101,7 +101,7 @@ mk_w_store_returns (void * row, ds_key_t index)
 	/*
 	 * some of the fields are conditionally taken from the sale 
 	 */
-	r->sr_customer_sk = mk_join (SR_CUSTOMER_SK, CUSTOMER, 1);
+	r->sr_customer_sk = mk_join(SR_CUSTOMER_SK, CUSTOMER, 1);
 	if (genrand_integer(NULL, DIST_UNIFORM, 1, 100, 0, SR_TICKET_NUMBER) < SR_SAME_CUSTOMER)
 		r->sr_customer_sk = sale->ss_sold_customer_sk;
 
@@ -109,20 +109,20 @@ mk_w_store_returns (void * row, ds_key_t index)
 	* the rest of the columns are generated for this specific return
 	*/
 	/* the items cannot be returned until they are sold; offset is handled in mk_join, based on sales date */
-	r->sr_returned_date_sk = mk_join (SR_RETURNED_DATE_SK, DATE, sale->ss_sold_date_sk);
+	r->sr_returned_date_sk = mk_join(SR_RETURNED_DATE_SK, DATE, sale->ss_sold_date_sk);
 	genrand_integer(&nTemp, DIST_UNIFORM, (8 * 3600) - 1, (17 * 3600) - 1, 0, SR_RETURNED_TIME_SK);
 	r->sr_returned_time_sk = nTemp;
 	r->sr_cdemo_sk =
-		mk_join (SR_CDEMO_SK, CUSTOMER_DEMOGRAPHICS, 1);
+		mk_join(SR_CDEMO_SK, CUSTOMER_DEMOGRAPHICS, 1);
 	r->sr_hdemo_sk =
-		mk_join (SR_HDEMO_SK, HOUSEHOLD_DEMOGRAPHICS, 1);
-	r->sr_addr_sk = mk_join (SR_ADDR_SK, CUSTOMER_ADDRESS, 1);
-	r->sr_store_sk = mk_join (SR_STORE_SK, STORE, 1);
-	r->sr_reason_sk = mk_join (SR_REASON_SK, REASON, 1);
+		mk_join(SR_HDEMO_SK, HOUSEHOLD_DEMOGRAPHICS, 1);
+	r->sr_addr_sk = mk_join(SR_ADDR_SK, CUSTOMER_ADDRESS, 1);
+	r->sr_store_sk = mk_join(SR_STORE_SK, STORE, 1);
+	r->sr_reason_sk = mk_join(SR_REASON_SK, REASON, 1);
 	genrand_integer(&r->sr_pricing.quantity, DIST_UNIFORM,
-		1, sale->ss_pricing.quantity, 0, SR_PRICING);
+					1, sale->ss_pricing.quantity, 0, SR_PRICING);
 	set_pricing(SR_PRICING, &r->sr_pricing);
-	
+
 	return (res);
 }
 
@@ -140,11 +140,9 @@ mk_w_store_returns (void * row, ds_key_t index)
 * Side Effects:
 * TODO: None
 */
-int
-pr_w_store_returns(void *row)
+int pr_w_store_returns(void *row)
 {
 	struct W_STORE_RETURNS_TBL *r;
-
 
 	if (row == NULL)
 		r = &g_w_store_returns;
@@ -172,8 +170,35 @@ pr_w_store_returns(void *row)
 	print_decimal(SR_PRICING_STORE_CREDIT, &r->sr_pricing.store_credit, 1);
 	print_decimal(SR_PRICING_NET_LOSS, &r->sr_pricing.net_loss, 0);
 	print_end(STORE_RETURNS);
-	
-	return(0);
+
+	// print schema out to file
+	if (SCHEMA_W < 1)
+	{
+		print_json_schema_start(STORE_RETURNS);
+		print_json_schema_col(STORE_RETURNS, "SR_RETURNED_DATE_SK", "STRING");
+		print_json_schema_col(STORE_RETURNS, "SR_RETURNED_TIME_SK", "STRING");
+		print_json_schema_col(STORE_RETURNS, "SR_ITEM_SK", "STRING");
+		print_json_schema_col(STORE_RETURNS, "SR_CUSTOMER_SK", "STRING");
+		print_json_schema_col(STORE_RETURNS, "SR_CDEMO_SK", "STRING");
+		print_json_schema_col(STORE_RETURNS, "SR_HDEMO_SK", "STRING");
+		print_json_schema_col(STORE_RETURNS, "SR_ADDR_SK", "STRING");
+		print_json_schema_col(STORE_RETURNS, "SR_STORE_SK", "STRING");
+		print_json_schema_col(STORE_RETURNS, "SR_REASON_SK", "STRING");
+		print_json_schema_col(STORE_RETURNS, "SR_TICKET_NUMBER", "STRING");
+		print_json_schema_col(STORE_RETURNS, "SR_PRICING_QUANTITY", "INT");
+		print_json_schema_col(STORE_RETURNS, "SR_PRICING_NET_PAID", "DECIMAL(7,2)");
+		print_json_schema_col(STORE_RETURNS, "SR_PRICING_EXT_TAX", "DECIMAL(7,2)");
+		print_json_schema_col(STORE_RETURNS, "SR_PRICING_NET_PAID_INC_TAX", "DECIMAL(7,2)");
+		print_json_schema_col(STORE_RETURNS, "SR_PRICING_FEE", "DECIMAL(7,2)");
+		print_json_schema_col(STORE_RETURNS, "SR_PRICING_EXT_SHIP_COST", "DECIMAL(7,2)");
+		print_json_schema_col(STORE_RETURNS, "SR_PRICING_REFUNDED_CASH", "DECIMAL(7,2)");
+		print_json_schema_col(STORE_RETURNS, "SR_PRICING_REVERSED_CHARGE", "DECIMAL(7,2)");
+		print_json_schema_col(STORE_RETURNS, "SR_PRICING_STORE_CREDIT", "DECIMAL(7,2)");
+		print_json_schema_end(STORE_RETURNS, "SR_PRICING_NET_LOSS", "DECIMAL(7,2)");
+	}
+	SCHEMA_W = 1;
+
+	return (0);
 }
 
 /*
@@ -190,16 +215,14 @@ pr_w_store_returns(void *row)
 * Side Effects:
 * TODO: None
 */
-int 
-ld_w_store_returns(void *pSrc)
+int ld_w_store_returns(void *pSrc)
 {
 	struct W_STORE_RETURNS_TBL *r;
-		
+
 	if (pSrc == NULL)
 		r = &g_w_store_returns;
 	else
 		r = pSrc;
-	
-	return(0);
-}
 
+	return (0);
+}

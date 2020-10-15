@@ -32,7 +32,7 @@
  * 
  * Contributors:
  * Gradient Systems
- */ 
+ */
 #include "config.h"
 #include "porting.h"
 #include <stdio.h>
@@ -61,22 +61,21 @@ static ds_key_t kNewDateIndex = 0;
 static ds_key_t jDate;
 static int nItemIndex = 0;
 
-
 /*
  * the validation process requires generating a single lineitem
  * so the main mk_xxx routine has been split into a master record portion
  * and a detail/lineitem portion.
  */
 static void
-mk_master (void *row, ds_key_t index)
+mk_master(void *row, ds_key_t index)
 {
-   static decimal_t dMin,
-      dMax;
-   int nGiftPct;
-   struct W_WEB_SALES_TBL *r;
-   static int bInit = 0,
-	   nItemCount;
-	
+	static decimal_t dMin,
+		dMax;
+	int nGiftPct;
+	struct W_WEB_SALES_TBL *r;
+	static int bInit = 0,
+			   nItemCount;
+
 	if (row == NULL)
 		r = &g_w_web_sales;
 	else
@@ -84,61 +83,60 @@ mk_master (void *row, ds_key_t index)
 
 	if (!bInit)
 	{
-		strtodec (&dMin, "1.00");
-		strtodec (&dMax, "100000.00");
-		jDate = skipDays(WEB_SALES, &kNewDateIndex);	
+		strtodec(&dMin, "1.00");
+		strtodec(&dMax, "100000.00");
+		jDate = skipDays(WEB_SALES, &kNewDateIndex);
 		nItemCount = (int)getIDCount(ITEM);
 		bInit = 1;
 	}
-		
-	
+
 	/***
 	* some attributes reamin the same for each lineitem in an order; others are different
 	* for each lineitem. Since the number of lineitems per order is static, we can use a 
 	* modulo to determine when to change the semi-static values 
 	*/
-   while (index > kNewDateIndex)	/* need to move to a new date */
-   {
-      jDate += 1;
-      kNewDateIndex += dateScaling(WEB_SALES, jDate);
-   }
+	while (index > kNewDateIndex) /* need to move to a new date */
+	{
+		jDate += 1;
+		kNewDateIndex += dateScaling(WEB_SALES, jDate);
+	}
 
-   r->ws_sold_date_sk = mk_join (WS_SOLD_DATE_SK, DATE, 1);
-   r->ws_sold_time_sk = mk_join(WS_SOLD_TIME_SK, TIME, 1);
-   r->ws_bill_customer_sk = mk_join (WS_BILL_CUSTOMER_SK, CUSTOMER, 1);
-   r->ws_bill_cdemo_sk = mk_join (WS_BILL_CDEMO_SK, CUSTOMER_DEMOGRAPHICS, 1);
-   r->ws_bill_hdemo_sk = mk_join (WS_BILL_HDEMO_SK, HOUSEHOLD_DEMOGRAPHICS, 1);
-   r->ws_bill_addr_sk = mk_join (WS_BILL_ADDR_SK, CUSTOMER_ADDRESS, 1);
-		
-   /* most orders are for the ordering customers, some are not */
-   genrand_integer(&nGiftPct, DIST_UNIFORM, 0, 99, 0, WS_SHIP_CUSTOMER_SK);
-   if (nGiftPct > WS_GIFT_PCT)
-   {
-      r->ws_ship_customer_sk =
-         mk_join (WS_SHIP_CUSTOMER_SK, CUSTOMER, 2);
-      r->ws_ship_cdemo_sk =
-         mk_join (WS_SHIP_CDEMO_SK, CUSTOMER_DEMOGRAPHICS, 2);
-      r->ws_ship_hdemo_sk =
-         mk_join (WS_SHIP_HDEMO_SK, HOUSEHOLD_DEMOGRAPHICS, 2);
-      r->ws_ship_addr_sk =
-         mk_join (WS_SHIP_ADDR_SK, CUSTOMER_ADDRESS, 2);
-   }
-   else
-   {
-      r->ws_ship_customer_sk =	r->ws_bill_customer_sk;
-      r->ws_ship_cdemo_sk =	r->ws_bill_cdemo_sk;
-      r->ws_ship_hdemo_sk =	r->ws_bill_hdemo_sk;
-      r->ws_ship_addr_sk =	r->ws_bill_addr_sk;
-   }
+	r->ws_sold_date_sk = mk_join(WS_SOLD_DATE_SK, DATE, 1);
+	r->ws_sold_time_sk = mk_join(WS_SOLD_TIME_SK, TIME, 1);
+	r->ws_bill_customer_sk = mk_join(WS_BILL_CUSTOMER_SK, CUSTOMER, 1);
+	r->ws_bill_cdemo_sk = mk_join(WS_BILL_CDEMO_SK, CUSTOMER_DEMOGRAPHICS, 1);
+	r->ws_bill_hdemo_sk = mk_join(WS_BILL_HDEMO_SK, HOUSEHOLD_DEMOGRAPHICS, 1);
+	r->ws_bill_addr_sk = mk_join(WS_BILL_ADDR_SK, CUSTOMER_ADDRESS, 1);
 
-   r->ws_order_number = index;
-   genrand_integer(&nItemIndex, DIST_UNIFORM, 1, nItemCount, 0, WS_ITEM_SK);
+	/* most orders are for the ordering customers, some are not */
+	genrand_integer(&nGiftPct, DIST_UNIFORM, 0, 99, 0, WS_SHIP_CUSTOMER_SK);
+	if (nGiftPct > WS_GIFT_PCT)
+	{
+		r->ws_ship_customer_sk =
+			mk_join(WS_SHIP_CUSTOMER_SK, CUSTOMER, 2);
+		r->ws_ship_cdemo_sk =
+			mk_join(WS_SHIP_CDEMO_SK, CUSTOMER_DEMOGRAPHICS, 2);
+		r->ws_ship_hdemo_sk =
+			mk_join(WS_SHIP_HDEMO_SK, HOUSEHOLD_DEMOGRAPHICS, 2);
+		r->ws_ship_addr_sk =
+			mk_join(WS_SHIP_ADDR_SK, CUSTOMER_ADDRESS, 2);
+	}
+	else
+	{
+		r->ws_ship_customer_sk = r->ws_bill_customer_sk;
+		r->ws_ship_cdemo_sk = r->ws_bill_cdemo_sk;
+		r->ws_ship_hdemo_sk = r->ws_bill_hdemo_sk;
+		r->ws_ship_addr_sk = r->ws_bill_addr_sk;
+	}
 
-return;
+	r->ws_order_number = index;
+	genrand_integer(&nItemIndex, DIST_UNIFORM, 1, nItemCount, 0, WS_ITEM_SK);
+
+	return;
 }
 
 static void
-mk_detail (void *row, int bPrint)
+mk_detail(void *row, int bPrint)
 {
 	static int *pItemPermutation,
 		nItemCount,
@@ -146,15 +144,14 @@ mk_detail (void *row, int bPrint)
 	struct W_WEB_SALES_TBL *r;
 	int nShipLag,
 		nTemp;
-   struct W_WEB_RETURNS_TBL w_web_returns;
-   tdef *pT = getSimpleTdefsByNumber(WEB_SALES);
-
+	struct W_WEB_RETURNS_TBL w_web_returns;
+	tdef *pT = getSimpleTdefsByNumber(WEB_SALES);
 
 	if (!bInit)
 	{
 		jDate = skipDays(WEB_SALES, &kNewDateIndex);
 		pItemPermutation = makePermutation(NULL, nItemCount = (int)getIDCount(ITEM), WS_PERMUTATION);
-		
+
 		bInit = 1;
 	}
 
@@ -165,70 +162,68 @@ mk_detail (void *row, int bPrint)
 
 	nullSet(&pT->kNullBitMap, WS_NULLS);
 
-
-      /* orders are shipped some number of days after they are ordered,
+	/* orders are shipped some number of days after they are ordered,
       * and not all lineitems ship at the same time
       */
-      genrand_integer (&nShipLag, DIST_UNIFORM, 
-         WS_MIN_SHIP_DELAY, WS_MAX_SHIP_DELAY, 0, WS_SHIP_DATE_SK);
-      r->ws_ship_date_sk = r->ws_sold_date_sk + nShipLag;
+	genrand_integer(&nShipLag, DIST_UNIFORM,
+					WS_MIN_SHIP_DELAY, WS_MAX_SHIP_DELAY, 0, WS_SHIP_DATE_SK);
+	r->ws_ship_date_sk = r->ws_sold_date_sk + nShipLag;
 
-      if (++nItemIndex > nItemCount)
-         nItemIndex = 1;
-      r->ws_item_sk = matchSCDSK(getPermutationEntry(pItemPermutation, nItemIndex), r->ws_sold_date_sk, ITEM);
+	if (++nItemIndex > nItemCount)
+		nItemIndex = 1;
+	r->ws_item_sk = matchSCDSK(getPermutationEntry(pItemPermutation, nItemIndex), r->ws_sold_date_sk, ITEM);
 
-      /* the web page needs to be valid for the sale date */
-      r->ws_web_page_sk = mk_join (WS_WEB_PAGE_SK, WEB_PAGE, r->ws_sold_date_sk);
-      r->ws_web_site_sk = mk_join (WS_WEB_SITE_SK, WEB_SITE, r->ws_sold_date_sk);
+	/* the web page needs to be valid for the sale date */
+	r->ws_web_page_sk = mk_join(WS_WEB_PAGE_SK, WEB_PAGE, r->ws_sold_date_sk);
+	r->ws_web_site_sk = mk_join(WS_WEB_SITE_SK, WEB_SITE, r->ws_sold_date_sk);
 
-      r->ws_ship_mode_sk = mk_join (WS_SHIP_MODE_SK, SHIP_MODE, 1);
-      r->ws_warehouse_sk = mk_join (WS_WAREHOUSE_SK, WAREHOUSE, 1);
-      r->ws_promo_sk = mk_join (WS_PROMO_SK, PROMOTION, 1);
-      set_pricing(WS_PRICING, &r->ws_pricing);
+	r->ws_ship_mode_sk = mk_join(WS_SHIP_MODE_SK, SHIP_MODE, 1);
+	r->ws_warehouse_sk = mk_join(WS_WAREHOUSE_SK, WAREHOUSE, 1);
+	r->ws_promo_sk = mk_join(WS_PROMO_SK, PROMOTION, 1);
+	set_pricing(WS_PRICING, &r->ws_pricing);
 
-      /** 
+	/** 
       * having gone to the trouble to make the sale, now let's see if it gets returned
       */
-      genrand_integer(&nTemp, DIST_UNIFORM, 0, 99, 0, WR_IS_RETURNED);
-      if (nTemp < WR_RETURN_PCT)
-      {
-         mk_w_web_returns(&w_web_returns, 1);
-         if (bPrint)
-			 pr_w_web_returns(&w_web_returns);
-      }
+	genrand_integer(&nTemp, DIST_UNIFORM, 0, 99, 0, WR_IS_RETURNED);
+	if (nTemp < WR_RETURN_PCT)
+	{
+		mk_w_web_returns(&w_web_returns, 1);
+		if (bPrint)
+			pr_w_web_returns(&w_web_returns);
+	}
 
-      /**
+	/**
       * now we print out the order and lineitem together as a single row
       */
-      if (bPrint)
-		  pr_w_web_sales(NULL);
+	if (bPrint)
+		pr_w_web_sales(NULL);
 
-	  return;
+	return;
 }
 
 /*
 * mk_web_sales
 */
-int
-mk_w_web_sales (void *row, ds_key_t index)
+int mk_w_web_sales(void *row, ds_key_t index)
 {
 	int nLineitems,
 		i;
 
-   /* build the static portion of an order */
+	/* build the static portion of an order */
 	mk_master(row, index);
 
-   /* set the number of lineitems and build them */
+	/* set the number of lineitems and build them */
 	genrand_integer(&nLineitems, DIST_UNIFORM, 8, 16, 9, WS_ORDER_NUMBER);
-   for (i = 1; i <= nLineitems; i++)
-   {
-	   mk_detail(NULL, 1);
-   }
+	for (i = 1; i <= nLineitems; i++)
+	{
+		mk_detail(NULL, 1);
+	}
 
-   /**
+	/**
    * and finally return 1 since we have already printed the rows
-   */	
-   return (1);
+   */
+	return (1);
 }
 
 /*
@@ -245,16 +240,15 @@ mk_w_web_sales (void *row, ds_key_t index)
 * Side Effects:
 * TODO: None
 */
-int
-pr_w_web_sales(void *row)
+int pr_w_web_sales(void *row)
 {
 	struct W_WEB_SALES_TBL *r;
-	
+
 	if (row == NULL)
 		r = &g_w_web_sales;
 	else
 		r = row;
-	
+
 	print_start(WEB_SALES);
 	print_key(WS_SOLD_DATE_SK, r->ws_sold_date_sk, 1);
 	print_key(WS_SOLD_TIME_SK, r->ws_sold_time_sk, 1);
@@ -292,7 +286,47 @@ pr_w_web_sales(void *row)
 	print_decimal(WS_PRICING_NET_PROFIT, &r->ws_pricing.net_profit, 0);
 	print_end(WEB_SALES);
 
-	return(0);
+	// print schema out to file
+	if (SCHEMA_W < 1)
+	{
+		print_json_schema_start(WEB_SALES);
+		print_json_schema_col(WEB_SALES, "WS_SOLD_DATE_SK", "STRING");
+		print_json_schema_col(WEB_SALES, "WS_SOLD_TIME_SK", "STRING");
+		print_json_schema_col(WEB_SALES, "WS_SHIP_DATE_SK", "STRING");
+		print_json_schema_col(WEB_SALES, "WS_ITEM_SK", "STRING");
+		print_json_schema_col(WEB_SALES, "WS_BILL_CUSTOMER_SK", "STRING");
+		print_json_schema_col(WEB_SALES, "WS_BILL_CDEMO_SK", "STRING");
+		print_json_schema_col(WEB_SALES, "WS_BILL_HDEMO_SK", "STRING");
+		print_json_schema_col(WEB_SALES, "WS_BILL_ADDR_SK", "STRING");
+		print_json_schema_col(WEB_SALES, "WS_SHIP_CUSTOMER_SK", "STRING");
+		print_json_schema_col(WEB_SALES, "WS_SHIP_CDEMO_SK", "STRING");
+		print_json_schema_col(WEB_SALES, "WS_SHIP_HDEMO_SK", "STRING");
+		print_json_schema_col(WEB_SALES, "WS_SHIP_ADDR_SK", "STRING");
+		print_json_schema_col(WEB_SALES, "WS_WEB_PAGE_SK", "STRING");
+		print_json_schema_col(WEB_SALES, "WS_WEB_SITE_SK", "STRING");
+		print_json_schema_col(WEB_SALES, "WS_SHIP_MODE_SK", "STRING");
+		print_json_schema_col(WEB_SALES, "WS_WAREHOUSE_SK", "STRING");
+		print_json_schema_col(WEB_SALES, "WS_PROMO_SK", "STRING");
+		print_json_schema_col(WEB_SALES, "WS_ORDER_NUMBER", "STRING");
+		print_json_schema_col(WEB_SALES, "WS_PRICING_QUANTITY", "INT");
+		print_json_schema_col(WEB_SALES, "WS_PRICING_WHOLESALE_COST", "DECIMAL(7,2)");
+		print_json_schema_col(WEB_SALES, "WS_PRICING_LIST_PRICE", "DECIMAL(7,2)");
+		print_json_schema_col(WEB_SALES, "WS_PRICING_SALES_PRICE", "DECIMAL(7,2)");
+		print_json_schema_col(WEB_SALES, "WS_PRICING_EXT_DISCOUNT_AMT", "DECIMAL(7,2)");
+		print_json_schema_col(WEB_SALES, "WS_PRICING_EXT_SALES_PRICE", "DECIMAL(7,2)");
+		print_json_schema_col(WEB_SALES, "WS_PRICING_EXT_WHOLESALE_COST", "DECIMAL(7,2)");
+		print_json_schema_col(WEB_SALES, "WS_PRICING_EXT_LIST_PRICE", "DECIMAL(7,2)");
+		print_json_schema_end(WEB_SALES, "WS_PRICING_EXT_TAX", "DECIMAL(7,2)");
+		print_json_schema_col(WEB_SALES, "WS_PRICING_COUPON_AMT", "DECIMAL(7,2)");
+		print_json_schema_col(WEB_SALES, "WS_PRICING_NET_PAID", "DECIMAL(7,2)");
+		print_json_schema_col(WEB_SALES, "WS_PRICING_NET_PAID_INC_TAX", "DECIMAL(7,2)");
+		print_json_schema_col(WEB_SALES, "WS_PRICING_NET_PAID_INC_SHIP", "DECIMAL(7,2)");
+		print_json_schema_col(WEB_SALES, "WS_PRICING_NET_PAID_INC_SHIP_TAX", "DECIMAL(7,2)");
+		print_json_schema_end(WEB_SALES, "WS_PRICING_NET_PROFIT", "DECIMAL(7,2)");
+	}
+	SCHEMA_W = 1;
+
+	return (0);
 }
 
 /*
@@ -309,17 +343,16 @@ pr_w_web_sales(void *row)
 * Side Effects:
 * TODO: None
 */
-int 
-ld_w_web_sales(void *pSrc)
+int ld_w_web_sales(void *pSrc)
 {
 	struct W_WEB_SALES_TBL *r;
-		
+
 	if (pSrc == NULL)
 		r = &g_w_web_sales;
 	else
 		r = pSrc;
-	
-	return(0);
+
+	return (0);
 }
 
 /*
@@ -336,16 +369,15 @@ ld_w_web_sales(void *pSrc)
 * Side Effects:
 * TODO: None
 */
-int
-vld_web_sales(int nTable, ds_key_t kRow, int *Permutation)
+int vld_web_sales(int nTable, ds_key_t kRow, int *Permutation)
 {
 	int nLineitem,
 		nMaxLineitem,
 		i;
 
 	row_skip(nTable, kRow - 1);
-	row_skip(WEB_RETURNS, (kRow - 1) );
-	jDate = skipDays(WEB_SALES, &kNewDateIndex);		
+	row_skip(WEB_RETURNS, (kRow - 1));
+	jDate = skipDays(WEB_SALES, &kNewDateIndex);
 	mk_master(NULL, kRow);
 	genrand_integer(&nMaxLineitem, DIST_UNIFORM, 8, 16, 9, WS_ORDER_NUMBER);
 	genrand_integer(&nLineitem, DIST_UNIFORM, 1, nMaxLineitem, 0, WS_PRICING_QUANTITY);
@@ -353,8 +385,7 @@ vld_web_sales(int nTable, ds_key_t kRow, int *Permutation)
 	{
 		mk_detail(NULL, 0);
 	}
-   mk_detail(NULL, 1);
+	mk_detail(NULL, 1);
 
-	return(0);
+	return (0);
 }
-

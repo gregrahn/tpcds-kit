@@ -32,7 +32,7 @@
  * 
  * Contributors:
  * Gradient Systems
- */ 
+ */
 #include "config.h"
 #include "porting.h"
 #include <stdio.h>
@@ -46,7 +46,7 @@
 #include "tdefs.h"
 
 struct W_SHIP_MODE_TBL g_w_ship_mode;
-
+static int SCHEMA_W;
 
 /*
 * Routine: 
@@ -62,14 +62,13 @@ struct W_SHIP_MODE_TBL g_w_ship_mode;
 * Side Effects:
 * TODO: None
 */
-int
-mk_w_ship_mode(void *pDest, ds_key_t kIndex)
+int mk_w_ship_mode(void *pDest, ds_key_t kIndex)
 {
 	static int bInit = 0;
 	struct W_SHIP_MODE_TBL *r;
 	ds_key_t nTemp;
-   tdef *pTdef = getSimpleTdefsByNumber(SHIP_MODE);
-	
+	tdef *pTdef = getSimpleTdefsByNumber(SHIP_MODE);
+
 	if (pDest == NULL)
 		r = &g_w_ship_mode;
 	else
@@ -80,17 +79,17 @@ mk_w_ship_mode(void *pDest, ds_key_t kIndex)
 		memset(&g_w_ship_mode, 0, sizeof(struct W_SHIP_MODE_TBL));
 		bInit = 1;
 	}
-	
+
 	nullSet(&pTdef->kNullBitMap, SM_NULLS);
 	r->sm_ship_mode_sk = kIndex;
 	mk_bkey(&r->sm_ship_mode_id[0], kIndex, SM_SHIP_MODE_ID);
 	nTemp = (long)kIndex;
-	bitmap_to_dist (&r->sm_type, "ship_mode_type", &nTemp, 1, SHIP_MODE);
-	bitmap_to_dist (&r->sm_code, "ship_mode_code", &nTemp, 1, SHIP_MODE);
+	bitmap_to_dist(&r->sm_type, "ship_mode_type", &nTemp, 1, SHIP_MODE);
+	bitmap_to_dist(&r->sm_code, "ship_mode_code", &nTemp, 1, SHIP_MODE);
 	dist_member(&r->sm_carrier, "ship_mode_carrier", (int)kIndex, 1);
-	gen_charset (r->sm_contract, ALPHANUM, 1, RS_SM_CONTRACT, 
-		SM_CONTRACT);
-	
+	gen_charset(r->sm_contract, ALPHANUM, 1, RS_SM_CONTRACT,
+				SM_CONTRACT);
+
 	return (0);
 }
 
@@ -108,16 +107,15 @@ mk_w_ship_mode(void *pDest, ds_key_t kIndex)
 * Side Effects:
 * TODO: None
 */
-int
-pr_w_ship_mode(void *pSrc)
+int pr_w_ship_mode(void *pSrc)
 {
 	struct W_SHIP_MODE_TBL *r;
-	
+
 	if (pSrc == NULL)
 		r = &g_w_ship_mode;
 	else
-		r = pSrc;	
-	
+		r = pSrc;
+
 	print_start(SHIP_MODE);
 	print_key(SM_SHIP_MODE_SK, r->sm_ship_mode_sk, 1);
 	print_varchar(SM_SHIP_MODE_ID, r->sm_ship_mode_id, 1);
@@ -127,7 +125,20 @@ pr_w_ship_mode(void *pSrc)
 	print_varchar(SM_CONTRACT, &r->sm_contract[0], 0);
 	print_end(SHIP_MODE);
 
-	return(0);
+	// print schema out to file
+	if (SCHEMA_W < 1)
+	{
+		print_json_schema_start(SHIP_MODE);
+		print_json_schema_col(SHIP_MODE, "SM_SHIP_MODE_SK", "STRING");
+		print_json_schema_col(SHIP_MODE, "SM_SHIP_MODE_ID", "STRING");
+		print_json_schema_col(SHIP_MODE, "SM_TYPE", "STRING");
+		print_json_schema_col(SHIP_MODE, "SM_CODE", "STRING");
+		print_json_schema_col(SHIP_MODE, "SM_CARRIER", "STRING");
+		print_json_schema_end(SHIP_MODE, "SM_CONTRACT", "STRING");
+	}
+	SCHEMA_W = 1;
+
+	return (0);
 }
 
 /*
@@ -144,16 +155,14 @@ pr_w_ship_mode(void *pSrc)
 * Side Effects:
 * TODO: None
 */
-int 
-ld_w_ship_mode(void *pSrc)
+int ld_w_ship_mode(void *pSrc)
 {
 	struct W_SHIP_MODE_TBL *r;
-		
+
 	if (pSrc == NULL)
 		r = &g_w_ship_mode;
 	else
 		r = pSrc;
-	
-	return(0);
-}
 
+	return (0);
+}

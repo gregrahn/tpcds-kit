@@ -32,7 +32,7 @@
  * 
  * Contributors:
  * Gradient Systems
- */ 
+ */
 #include "config.h"
 #include "porting.h"
 #include <stdio.h>
@@ -62,23 +62,22 @@ static ds_key_t jDate;
 static int nTicketItemBase = 1;
 static int *pItemPermutation;
 static int nItemCount;
-                                                              
-                                                              
+static int SCHEMA_W;
+
 /*                                                            
  * the validation process requires generating a single lineitem
  * so the main mk_xxx routine has been split into a master record portion   
  * and a detail/lineitem portion.                             
- */                                                           
-static void                                                   
-mk_master (void *row, ds_key_t index)                         
-{                                      
+ */
+static void
+mk_master(void *row, ds_key_t index)
+{
 	static decimal_t dZero,
 		dHundred,
 		dOne, dOneHalf;
 	int nGiftPct;
 	struct W_CATALOG_SALES_TBL *r;
 	static int bInit = 0;
-
 
 	if (row == NULL)
 		r = &g_w_catalog_sales;
@@ -87,21 +86,21 @@ mk_master (void *row, ds_key_t index)
 
 	if (!bInit)
 	{
-	    strtodec (&dZero, "0.00");
-        strtodec (&dHundred, "100.00");
-        strtodec (&dOne, "1.00");
-        strtodec (&dOneHalf, "0.50");
+		strtodec(&dZero, "0.00");
+		strtodec(&dHundred, "100.00");
+		strtodec(&dOne, "1.00");
+		strtodec(&dOneHalf, "0.50");
 		jDate = skipDays(CATALOG_SALES, &kNewDateIndex);
 		pItemPermutation = makePermutation(NULL, (nItemCount = (int)getIDCount(ITEM)), CS_PERMUTE);
 
 		bInit = 1;
 	}
 
-   while (index > kNewDateIndex)	/* need to move to a new date */
-   {
-      jDate += 1;
-      kNewDateIndex += dateScaling(CATALOG_SALES, jDate);
-   }
+	while (index > kNewDateIndex) /* need to move to a new date */
+	{
+		jDate += 1;
+		kNewDateIndex += dateScaling(CATALOG_SALES, jDate);
+	}
 
 	/***
 	 * some attributes remain the same for each lineitem in an order; others are different
@@ -111,47 +110,47 @@ mk_master (void *row, ds_key_t index)
     * If we are seeding at the start of a parallel chunk, hunt backwards in the RNG stream to find the most
     * recent values that were used to set the values of the orderline-invariant columns
  	 */
-   
-		r->cs_sold_date_sk = jDate;
-		r->cs_sold_time_sk = mk_join (CS_SOLD_TIME_SK, TIME, 
-			r->cs_call_center_sk);
-		r->cs_call_center_sk =
-			(r->cs_sold_date_sk == -1)?-1:mk_join (CS_CALL_CENTER_SK, CALL_CENTER, r->cs_sold_date_sk);
-		
-		r->cs_bill_customer_sk =
-			mk_join (CS_BILL_CUSTOMER_SK, CUSTOMER, 1);
-		r->cs_bill_cdemo_sk =
-			mk_join (CS_BILL_CDEMO_SK, CUSTOMER_DEMOGRAPHICS, 1);
-		r->cs_bill_hdemo_sk =
-			mk_join (CS_BILL_HDEMO_SK, HOUSEHOLD_DEMOGRAPHICS, 1);
-		r->cs_bill_addr_sk =
-			mk_join (CS_BILL_ADDR_SK, CUSTOMER_ADDRESS, 1);
 
-		/* most orders are for the ordering customers, some are not */
-		genrand_integer(&nGiftPct, DIST_UNIFORM, 0, 99, 0, CS_SHIP_CUSTOMER_SK);
-		if (nGiftPct <= CS_GIFT_PCT)
-		{
-			r->cs_ship_customer_sk =
-				mk_join (CS_SHIP_CUSTOMER_SK, CUSTOMER, 2);
-			r->cs_ship_cdemo_sk =
-				mk_join (CS_SHIP_CDEMO_SK, CUSTOMER_DEMOGRAPHICS, 2);
-			r->cs_ship_hdemo_sk =
-				mk_join (CS_SHIP_HDEMO_SK, HOUSEHOLD_DEMOGRAPHICS, 2);
-			r->cs_ship_addr_sk =
-				mk_join (CS_SHIP_ADDR_SK, CUSTOMER_ADDRESS, 2);
-		}
-		else
-		{
-			r->cs_ship_customer_sk =	r->cs_bill_customer_sk;
-			r->cs_ship_cdemo_sk =	r->cs_bill_cdemo_sk;
-			r->cs_ship_hdemo_sk =	r->cs_bill_hdemo_sk;
-			r->cs_ship_addr_sk =	r->cs_bill_addr_sk;
-		}	
+	r->cs_sold_date_sk = jDate;
+	r->cs_sold_time_sk = mk_join(CS_SOLD_TIME_SK, TIME,
+								 r->cs_call_center_sk);
+	r->cs_call_center_sk =
+		(r->cs_sold_date_sk == -1) ? -1 : mk_join(CS_CALL_CENTER_SK, CALL_CENTER, r->cs_sold_date_sk);
 
-      r->cs_order_number = index;
-	  genrand_integer(&nTicketItemBase, DIST_UNIFORM, 1, nItemCount, 0, CS_SOLD_ITEM_SK);
+	r->cs_bill_customer_sk =
+		mk_join(CS_BILL_CUSTOMER_SK, CUSTOMER, 1);
+	r->cs_bill_cdemo_sk =
+		mk_join(CS_BILL_CDEMO_SK, CUSTOMER_DEMOGRAPHICS, 1);
+	r->cs_bill_hdemo_sk =
+		mk_join(CS_BILL_HDEMO_SK, HOUSEHOLD_DEMOGRAPHICS, 1);
+	r->cs_bill_addr_sk =
+		mk_join(CS_BILL_ADDR_SK, CUSTOMER_ADDRESS, 1);
 
-      return;
+	/* most orders are for the ordering customers, some are not */
+	genrand_integer(&nGiftPct, DIST_UNIFORM, 0, 99, 0, CS_SHIP_CUSTOMER_SK);
+	if (nGiftPct <= CS_GIFT_PCT)
+	{
+		r->cs_ship_customer_sk =
+			mk_join(CS_SHIP_CUSTOMER_SK, CUSTOMER, 2);
+		r->cs_ship_cdemo_sk =
+			mk_join(CS_SHIP_CDEMO_SK, CUSTOMER_DEMOGRAPHICS, 2);
+		r->cs_ship_hdemo_sk =
+			mk_join(CS_SHIP_HDEMO_SK, HOUSEHOLD_DEMOGRAPHICS, 2);
+		r->cs_ship_addr_sk =
+			mk_join(CS_SHIP_ADDR_SK, CUSTOMER_ADDRESS, 2);
+	}
+	else
+	{
+		r->cs_ship_customer_sk = r->cs_bill_customer_sk;
+		r->cs_ship_cdemo_sk = r->cs_bill_cdemo_sk;
+		r->cs_ship_hdemo_sk = r->cs_bill_hdemo_sk;
+		r->cs_ship_addr_sk = r->cs_bill_addr_sk;
+	}
+
+	r->cs_order_number = index;
+	genrand_integer(&nTicketItemBase, DIST_UNIFORM, 1, nItemCount, 0, CS_SOLD_ITEM_SK);
+
+	return;
 }
 
 static void
@@ -160,15 +159,14 @@ mk_detail(void *row, int bPrint)
 	static decimal_t dZero,
 		dHundred,
 		dOne, dOneHalf;
-	int nShipLag, 
+	int nShipLag,
 		nTemp;
-   ds_key_t kItem;
+	ds_key_t kItem;
 	static ds_key_t kNewDateIndex = 0;
 	static ds_key_t jDate;
 	struct W_CATALOG_SALES_TBL *r;
 	static int bInit = 0;
-   tdef *pTdef = getSimpleTdefsByNumber(CATALOG_SALES);
-
+	tdef *pTdef = getSimpleTdefsByNumber(CATALOG_SALES);
 
 	if (row == NULL)
 		r = &g_w_catalog_sales;
@@ -177,23 +175,21 @@ mk_detail(void *row, int bPrint)
 
 	if (!bInit)
 	{
-	    strtodec (&dZero, "0.00");
-        strtodec (&dHundred, "100.00");
-        strtodec (&dOne, "1.00");
-        strtodec (&dOneHalf, "0.50");
+		strtodec(&dZero, "0.00");
+		strtodec(&dHundred, "100.00");
+		strtodec(&dOne, "1.00");
+		strtodec(&dOneHalf, "0.50");
 		jDate = skipDays(CATALOG_SALES, &kNewDateIndex);
 
 		bInit = 1;
 	}
 
-
-   nullSet(&pTdef->kNullBitMap, CS_NULLS);
+	nullSet(&pTdef->kNullBitMap, CS_NULLS);
 
 	/* orders are shipped some number of days after they are ordered */
-	genrand_integer (&nShipLag, DIST_UNIFORM, 
-		CS_MIN_SHIP_DELAY, CS_MAX_SHIP_DELAY, 0, CS_SHIP_DATE_SK);
-	r->cs_ship_date_sk = (r->cs_sold_date_sk == -1)?-1:r->cs_sold_date_sk + nShipLag;
-
+	genrand_integer(&nShipLag, DIST_UNIFORM,
+					CS_MIN_SHIP_DELAY, CS_MAX_SHIP_DELAY, 0, CS_SHIP_DATE_SK);
+	r->cs_ship_date_sk = (r->cs_sold_date_sk == -1) ? -1 : r->cs_sold_date_sk + nShipLag;
 
 	/* 
 	 * items need to be unique within an order
@@ -201,17 +197,17 @@ mk_detail(void *row, int bPrint)
     * NB: Permutations are 1-based
 	 */
 	if (++nTicketItemBase > nItemCount)
-      nTicketItemBase = 1;
-   kItem = getPermutationEntry(pItemPermutation, nTicketItemBase);
-   r->cs_sold_item_sk = matchSCDSK(kItem, r->cs_sold_date_sk, ITEM);
+		nTicketItemBase = 1;
+	kItem = getPermutationEntry(pItemPermutation, nTicketItemBase);
+	r->cs_sold_item_sk = matchSCDSK(kItem, r->cs_sold_date_sk, ITEM);
 
 	/* catalog page needs to be from a catlog active at the time of the sale */
 	r->cs_catalog_page_sk =
-		(r->cs_sold_date_sk == -1)?-1:mk_join (CS_CATALOG_PAGE_SK, CATALOG_PAGE, r->cs_sold_date_sk);
+		(r->cs_sold_date_sk == -1) ? -1 : mk_join(CS_CATALOG_PAGE_SK, CATALOG_PAGE, r->cs_sold_date_sk);
 
-	r->cs_ship_mode_sk = mk_join (CS_SHIP_MODE_SK, SHIP_MODE, 1);
-	r->cs_warehouse_sk = mk_join (CS_WAREHOUSE_SK, WAREHOUSE, 1);
-	r->cs_promo_sk = mk_join (CS_PROMO_SK, PROMOTION, 1);
+	r->cs_ship_mode_sk = mk_join(CS_SHIP_MODE_SK, SHIP_MODE, 1);
+	r->cs_warehouse_sk = mk_join(CS_WAREHOUSE_SK, WAREHOUSE, 1);
+	r->cs_promo_sk = mk_join(CS_PROMO_SK, PROMOTION, 1);
 	set_pricing(CS_PRICING, &r->cs_pricing);
 
 	/** 
@@ -221,17 +217,17 @@ mk_detail(void *row, int bPrint)
 	if (nTemp < CR_RETURN_PCT)
 	{
 		mk_w_catalog_returns(NULL, 1);
-      if (bPrint)
-         pr_w_catalog_returns(NULL);
+		if (bPrint)
+			pr_w_catalog_returns(NULL);
 	}
 
-   /**
+	/**
    * now we print out the order and lineitem together as a single row
    */
-   if (bPrint)
-      pr_w_catalog_sales(NULL);
+	if (bPrint)
+		pr_w_catalog_sales(NULL);
 
-   return;
+	return;
 }
 
 /*
@@ -250,28 +246,27 @@ mk_detail(void *row, int bPrint)
 * 20020902 jms Need to link order date/time to call center record
 * 20020902 jms Should promos be tied to item id?
 */
-int
-mk_w_catalog_sales (void* row, ds_key_t index)
+int mk_w_catalog_sales(void *row, ds_key_t index)
 {
-   int nLineitems,
-      i;
+	int nLineitems,
+		i;
 
-   mk_master(row, index);
+	mk_master(row, index);
 
-   /*
+	/*
     * now we select the number of lineitems in this order, and loop through them, printing
     * as we go
     */
-   genrand_integer(&nLineitems, DIST_UNIFORM, 4, 14, 0, CS_ORDER_NUMBER);
-   for (i=1; i <= nLineitems; i++)
-   {
-      mk_detail(NULL, 1);
-   }
+	genrand_integer(&nLineitems, DIST_UNIFORM, 4, 14, 0, CS_ORDER_NUMBER);
+	for (i = 1; i <= nLineitems; i++)
+	{
+		mk_detail(NULL, 1);
+	}
 
-   /**
+	/**
     * and finally return 1 since we have already printed the rows.
     */
-    return(1);
+	return (1);
 }
 
 /*
@@ -288,10 +283,9 @@ mk_w_catalog_sales (void* row, ds_key_t index)
 * Side Effects:
 * TODO: None
 */
-int
-pr_w_catalog_sales(void *row)
+int pr_w_catalog_sales(void *row)
 {
-		struct W_CATALOG_SALES_TBL *r;
+	struct W_CATALOG_SALES_TBL *r;
 
 	if (row == NULL)
 		r = &g_w_catalog_sales;
@@ -314,7 +308,7 @@ pr_w_catalog_sales(void *row)
 	print_key(CS_CATALOG_PAGE_SK, r->cs_catalog_page_sk, 1);
 	print_key(CS_SHIP_MODE_SK, r->cs_ship_mode_sk, 1);
 	print_key(CS_WAREHOUSE_SK, r->cs_warehouse_sk, 1);
-    print_key(CS_SOLD_ITEM_SK, r->cs_sold_item_sk, 1);
+	print_key(CS_SOLD_ITEM_SK, r->cs_sold_item_sk, 1);
 	print_key(CS_PROMO_SK, r->cs_promo_sk, 1);
 	print_key(CS_ORDER_NUMBER, r->cs_order_number, 1);
 	print_integer(CS_PRICING_QUANTITY, r->cs_pricing.quantity, 1);
@@ -335,7 +329,49 @@ pr_w_catalog_sales(void *row)
 	print_decimal(CS_PRICING_NET_PROFIT, &r->cs_pricing.net_profit, 0);
 	print_end(CATALOG_SALES);
 
-	return(0);
+	// print schema out to file
+	if (SCHEMA_W < 1)
+	{
+
+		print_json_schema_start(CATALOG_SALES);
+		print_json_schema_col(CATALOG_SALES, "CS_SOLD_DATE_SK", "STRING");
+		print_json_schema_col(CATALOG_SALES, "CS_SOLD_TIME_SK", "STRING");
+		print_json_schema_col(CATALOG_SALES, "CS_SHIP_DATE_SK", "STRING");
+		print_json_schema_col(CATALOG_SALES, "CS_BILL_CUSTOMER_SK", "STRING");
+		print_json_schema_col(CATALOG_SALES, "CS_BILL_CDEMO_SK", "STRING");
+		print_json_schema_col(CATALOG_SALES, "CS_BILL_HDEMO_SK", "STRING");
+		print_json_schema_col(CATALOG_SALES, "CS_BILL_ADDR_SK", "STRING");
+		print_json_schema_col(CATALOG_SALES, "CS_SHIP_CUSTOMER_SK", "STRING");
+		print_json_schema_col(CATALOG_SALES, "CS_SHIP_CDEMO_SK", "STRING");
+		print_json_schema_col(CATALOG_SALES, "CS_SHIP_HDEMO_SK", "STRING");
+		print_json_schema_col(CATALOG_SALES, "CS_SHIP_ADDR_SK", "STRING");
+		print_json_schema_col(CATALOG_SALES, "CS_CALL_CENTER_SK", "STRING");
+		print_json_schema_col(CATALOG_SALES, "CS_CATALOG_PAGE_SK", "STRING");
+		print_json_schema_col(CATALOG_SALES, "CS_SHIP_MODE_SK", "STRING");
+		print_json_schema_col(CATALOG_SALES, "CS_WAREHOUSE_SK", "STRING");
+		print_json_schema_col(CATALOG_SALES, "CS_SOLD_ITEM_SK", "STRING");
+		print_json_schema_col(CATALOG_SALES, "CS_PROMO_SK", "STRING");
+		print_json_schema_col(CATALOG_SALES, "CS_ORDER_NUMBER", "STRING");
+		print_json_schema_col(CATALOG_SALES, "CS_PRICING_QUANTITY", "INT");
+		print_json_schema_col(CATALOG_SALES, "CS_PRICING_WHOLESALE_COST", "DECIMAL(7,2)");
+		print_json_schema_col(CATALOG_SALES, "CS_PRICING_LIST_PRICE", "DECIMAL(7,2)");
+		print_json_schema_col(CATALOG_SALES, "CS_PRICING_SALES_PRICE", "DECIMAL(7,2)");
+		print_json_schema_col(CATALOG_SALES, "CS_PRICING_EXT_DISCOUNT_AMOUNT", "DECIMAL(7,2)");
+		print_json_schema_col(CATALOG_SALES, "CS_PRICING_EXT_SALES_PRICE", "DECIMAL(7,2)");
+		print_json_schema_col(CATALOG_SALES, "CS_PRICING_EXT_WHOLESALE_COST", "DECIMAL(7,2)");
+		print_json_schema_col(CATALOG_SALES, "CS_PRICING_EXT_LIST_PRICE", "DECIMAL(7,2)");
+		print_json_schema_end(CATALOG_SALES, "CS_PRICING_EXT_TAX", "DECIMAL(7,2)");
+		print_json_schema_col(CATALOG_SALES, "CS_PRICING_COUPON_AMT", "DECIMAL(7,2)");
+		print_json_schema_col(CATALOG_SALES, "CS_PRICING_EXT_SHIP_COST", "DECIMAL(7,2)");
+		print_json_schema_col(CATALOG_SALES, "WS_PRICING_NET_PAID", "DECIMAL(7,2)");
+		print_json_schema_col(CATALOG_SALES, "WS_PRICING_NET_PAID_INC_TAX", "DECIMAL(7,2)");
+		print_json_schema_col(CATALOG_SALES, "WS_PRICING_NET_PAID_INC_SHIP", "DECIMAL(7,2)");
+		print_json_schema_col(CATALOG_SALES, "WS_PRICING_NET_PAID_INC_SHIP_TAX", "DECIMAL(7,2)");
+		print_json_schema_end(CATALOG_SALES, "WS_PRICING_NET_PROFIT", "DECIMAL(7,2)");
+	}
+	SCHEMA_W = 1;
+
+	return (0);
 }
 
 /*
@@ -352,8 +388,7 @@ pr_w_catalog_sales(void *row)
 * Side Effects:
 * TODO: None
 */
-int
-ld_w_catalog_sales(void *row)
+int ld_w_catalog_sales(void *row)
 {
 	struct W_CATALOG_SALES_TBL *r;
 
@@ -362,7 +397,7 @@ ld_w_catalog_sales(void *row)
 	else
 		r = row;
 
-	return(0);
+	return (0);
 }
 
 /*
@@ -379,16 +414,15 @@ ld_w_catalog_sales(void *row)
 * Side Effects:
 * TODO: None
 */
-int
-vld_w_catalog_sales(int nTable, ds_key_t kRow, int *Permutation)
+int vld_w_catalog_sales(int nTable, ds_key_t kRow, int *Permutation)
 {
 	int nLineitem,
 		nMaxLineitem,
 		i;
 
 	row_skip(nTable, kRow - 1);
-	row_skip(CATALOG_RETURNS, (kRow - 1) );
-	jDate = skipDays(CATALOG_SALES, &kNewDateIndex);		
+	row_skip(CATALOG_RETURNS, (kRow - 1));
+	jDate = skipDays(CATALOG_SALES, &kNewDateIndex);
 	mk_master(NULL, kRow);
 	genrand_integer(&nMaxLineitem, DIST_UNIFORM, 4, 14, 9, CS_ORDER_NUMBER);
 	genrand_integer(&nLineitem, DIST_UNIFORM, 1, nMaxLineitem, 0, CS_PRICING_QUANTITY);
@@ -396,8 +430,7 @@ vld_w_catalog_sales(int nTable, ds_key_t kRow, int *Permutation)
 	{
 		mk_detail(NULL, 0);
 	}
-   mk_detail(NULL, 1);
+	mk_detail(NULL, 1);
 
-	return(0);
+	return (0);
 }
-

@@ -32,7 +32,7 @@
  * 
  * Contributors:
  * Gradient Systems
- */ 
+ */
 #include "config.h"
 #include "porting.h"
 #include <stdio.h>
@@ -50,6 +50,7 @@
 #include "scd.h"
 
 struct W_INVENTORY_TBL g_w_inventory;
+static int SCHEMA_W;
 
 /*
 * Routine: 
@@ -65,8 +66,7 @@ struct W_INVENTORY_TBL g_w_inventory;
 * Side Effects:
 * TODO: None
 */
-int
-mk_w_inventory(void *pDest, ds_key_t index)
+int mk_w_inventory(void *pDest, ds_key_t index)
 {
 	static int bInit = 0;
 	struct W_INVENTORY_TBL *r;
@@ -75,8 +75,8 @@ mk_w_inventory(void *pDest, ds_key_t index)
 	static int jDate;
 	date_t *base_date;
 	int nTemp;
-   tdef *pTdef = getSimpleTdefsByNumber(INVENTORY);
-	
+	tdef *pTdef = getSimpleTdefsByNumber(INVENTORY);
+
 	if (pDest == NULL)
 		r = &g_w_inventory;
 	else
@@ -85,22 +85,22 @@ mk_w_inventory(void *pDest, ds_key_t index)
 	if (!bInit)
 	{
 		memset(&g_w_inventory, 0, sizeof(struct W_INVENTORY_TBL));
-        item_count = getIDCount(ITEM);
-        warehouse_count = get_rowcount (WAREHOUSE);
-        base_date = strtodate (DATE_MINIMUM);
-        jDate = base_date->julian;
-        set_dow(base_date);
-        /* Make exceptions to the 1-rng-call-per-row rule */
+		item_count = getIDCount(ITEM);
+		warehouse_count = get_rowcount(WAREHOUSE);
+		base_date = strtodate(DATE_MINIMUM);
+		jDate = base_date->julian;
+		set_dow(base_date);
+		/* Make exceptions to the 1-rng-call-per-row rule */
 		bInit = 1;
 	}
 
 	nullSet(&pTdef->kNullBitMap, INV_NULLS);
-	nTemp = (int) index - 1;
+	nTemp = (int)index - 1;
 	r->inv_item_sk = (nTemp % item_count) + 1;
-	nTemp /= (int) item_count;
+	nTemp /= (int)item_count;
 	r->inv_warehouse_sk = (nTemp % warehouse_count) + 1;
-	nTemp /= (int) warehouse_count;
-	r->inv_date_sk = jDate + (nTemp * 7);	/* inventory is updated weekly */
+	nTemp /= (int)warehouse_count;
+	r->inv_date_sk = jDate + (nTemp * 7); /* inventory is updated weekly */
 
 	/* 
 	 * the join between item and inventory is tricky. The item_id selected above identifies a unique part num
@@ -108,10 +108,9 @@ mk_w_inventory(void *pDest, ds_key_t index)
 	 */
 	r->inv_item_sk = matchSCDSK(r->inv_item_sk, r->inv_date_sk, ITEM);
 
-	genrand_integer (&r->inv_quantity_on_hand, DIST_UNIFORM,
-		INV_QUANTITY_MIN, INV_QUANTITY_MAX, 0, INV_QUANTITY_ON_HAND);
-	
-	
+	genrand_integer(&r->inv_quantity_on_hand, DIST_UNIFORM,
+					INV_QUANTITY_MIN, INV_QUANTITY_MAX, 0, INV_QUANTITY_ON_HAND);
+
 	return (0);
 }
 
@@ -129,16 +128,15 @@ mk_w_inventory(void *pDest, ds_key_t index)
 * Side Effects:
 * TODO: None
 */
-int
-pr_w_inventory(void *row)
+int pr_w_inventory(void *row)
 {
 	struct W_INVENTORY_TBL *r;
-	
+
 	if (row == NULL)
 		r = &g_w_inventory;
 	else
-		r = row;	
-	
+		r = row;
+
 	print_start(INVENTORY);
 	print_key(INV_DATE_SK, r->inv_date_sk, 1);
 	print_key(INV_ITEM_SK, r->inv_item_sk, 1);
@@ -146,7 +144,18 @@ pr_w_inventory(void *row)
 	print_integer(INV_QUANTITY_ON_HAND, r->inv_quantity_on_hand, 0);
 	print_end(INVENTORY);
 
-	return(0);
+	// print schema out to file
+	if (SCHEMA_W < 1)
+	{
+		print_json_schema_start(INVENTORY);
+		print_json_schema_col(INVENTORY, "INV_SITE_SK", "STRING");
+		print_json_schema_col(INVENTORY, "INV_SITE_ID", "STRING");
+		print_json_schema_col(INVENTORY, "INV_WAREHOUSE_SK", "STRING");
+		print_json_schema_end(INVENTORY, "INV_QUANTITY_ON_HAND", "INT");
+	}
+	SCHEMA_W = 1;
+
+	return (0);
 }
 
 /*
@@ -163,17 +172,16 @@ pr_w_inventory(void *row)
 * Side Effects:
 * TODO: None
 */
-int 
-ld_w_inventory(void *pSrc)
+int ld_w_inventory(void *pSrc)
 {
 	struct W_INVENTORY_TBL *r;
-		
+
 	if (pSrc == NULL)
 		r = &g_w_inventory;
 	else
 		r = pSrc;
-	
-	return(0);
+
+	return (0);
 }
 
 /*
@@ -190,24 +198,23 @@ ld_w_inventory(void *pSrc)
 * Side Effects:
 * TODO: None
 */
-ds_key_t 
+ds_key_t
 sc_w_inventory(int nScale)
 {
 	ds_key_t kRes;
 	date_t dTemp;
 	int nDays;
-	
+
 	kRes = getIDCount(ITEM);
 	kRes *= get_rowcount(WAREHOUSE);
 	strtodt(&dTemp, DATE_MAXIMUM);
 	nDays = dTemp.julian;
 	strtodt(&dTemp, DATE_MINIMUM);
 	nDays -= dTemp.julian;
-   nDays += 1;
+	nDays += 1;
 	nDays += 6;
-	nDays /= 7;	/* each items inventory is updated weekly */
+	nDays /= 7; /* each items inventory is updated weekly */
 	kRes *= nDays;
-	
-	return(kRes);
-}
 
+	return (kRes);
+}

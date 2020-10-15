@@ -32,7 +32,7 @@
  * 
  * Contributors:
  * Gradient Systems
- */ 
+ */
 #include "config.h"
 #include "porting.h"
 #include <stdio.h>
@@ -52,6 +52,7 @@
 
 struct W_WEB_RETURNS_TBL g_w_web_returns;
 extern struct W_WEB_SALES_TBL g_w_web_sales;
+static int SCHEMA_W;
 
 /*
 * Routine: mk_web_returns()
@@ -68,32 +69,31 @@ extern struct W_WEB_SALES_TBL g_w_web_sales;
 * Side Effects:
 * TODO: None
 */
-int
-mk_w_web_returns (void* row, ds_key_t index)
+int mk_w_web_returns(void *row, ds_key_t index)
 {
 	int res = 0;
-	
+
 	static decimal_t dMin,
 		dMax;
 	static struct W_WEB_SALES_TBL *sale;
 	static int bInit = 0;
 	struct W_WEB_RETURNS_TBL *r;
-   tdef *pT = getSimpleTdefsByNumber(WEB_RETURNS);
-	
+	tdef *pT = getSimpleTdefsByNumber(WEB_RETURNS);
+
 	if (row == NULL)
 		r = &g_w_web_returns;
 	else
 		r = row;
-	
+
 	if (!bInit)
 	{
-        strtodec (&dMin, "1.00");
-        strtodec (&dMax, "100000.00");
+		strtodec(&dMin, "1.00");
+		strtodec(&dMax, "100000.00");
 		bInit = 1;
 	}
-		
+
 	nullSet(&pT->kNullBitMap, WR_NULLS);
-	
+
 	/*
 	* Some of the information in the return is taken from the original sale
 	* which has been regenerated
@@ -104,26 +104,24 @@ mk_w_web_returns (void* row, ds_key_t index)
 	memcpy((void *)&r->wr_pricing, (void *)&sale->ws_pricing, sizeof(ds_pricing_t));
 	r->wr_web_page_sk = sale->ws_web_page_sk;
 
-
 	/*
 	* the rest of the columns are generated for this specific return
 	*/
 	/* the items cannot be returned until they are shipped; offset is handled in mk_join, based on sales date */
-	r->wr_returned_date_sk = mk_join (WR_RETURNED_DATE_SK, DATE, sale->ws_ship_date_sk);
+	r->wr_returned_date_sk = mk_join(WR_RETURNED_DATE_SK, DATE, sale->ws_ship_date_sk);
 	r->wr_returned_time_sk = mk_join(WR_RETURNED_TIME_SK, TIME, 1);
 
 	/* most items are returned by the people they were shipped to, but some are returned
 	* by other folks
 	*/
-		r->wr_refunded_customer_sk = mk_join (WR_REFUNDED_CUSTOMER_SK, CUSTOMER, 1);
-		r->wr_refunded_cdemo_sk =
-			mk_join (WR_REFUNDED_CDEMO_SK, CUSTOMER_DEMOGRAPHICS, 1);
-		r->wr_refunded_hdemo_sk =
-			mk_join (WR_REFUNDED_HDEMO_SK, HOUSEHOLD_DEMOGRAPHICS, 1);
-		r->wr_refunded_addr_sk =
-			mk_join (WR_REFUNDED_ADDR_SK, CUSTOMER_ADDRESS, 1);
-	if (genrand_integer(NULL, DIST_UNIFORM, 0, 99, 0, WR_RETURNING_CUSTOMER_SK) 
-		< WS_GIFT_PCT)
+	r->wr_refunded_customer_sk = mk_join(WR_REFUNDED_CUSTOMER_SK, CUSTOMER, 1);
+	r->wr_refunded_cdemo_sk =
+		mk_join(WR_REFUNDED_CDEMO_SK, CUSTOMER_DEMOGRAPHICS, 1);
+	r->wr_refunded_hdemo_sk =
+		mk_join(WR_REFUNDED_HDEMO_SK, HOUSEHOLD_DEMOGRAPHICS, 1);
+	r->wr_refunded_addr_sk =
+		mk_join(WR_REFUNDED_ADDR_SK, CUSTOMER_ADDRESS, 1);
+	if (genrand_integer(NULL, DIST_UNIFORM, 0, 99, 0, WR_RETURNING_CUSTOMER_SK) < WS_GIFT_PCT)
 	{
 		r->wr_refunded_customer_sk = sale->ws_ship_customer_sk;
 		r->wr_refunded_cdemo_sk = sale->ws_ship_cdemo_sk;
@@ -135,11 +133,11 @@ mk_w_web_returns (void* row, ds_key_t index)
 	r->wr_returning_hdemo_sk = r->wr_refunded_hdemo_sk;
 	r->wr_returning_addr_sk = r->wr_refunded_addr_sk;
 
-	r->wr_reason_sk = mk_join (WR_REASON_SK, REASON, 1);
+	r->wr_reason_sk = mk_join(WR_REASON_SK, REASON, 1);
 	genrand_integer(&r->wr_pricing.quantity, DIST_UNIFORM,
-		1, sale->ws_pricing.quantity, 0, WR_PRICING);
+					1, sale->ws_pricing.quantity, 0, WR_PRICING);
 	set_pricing(WR_PRICING, &r->wr_pricing);
-	
+
 	return (res);
 }
 
@@ -157,16 +155,15 @@ mk_w_web_returns (void* row, ds_key_t index)
 * Side Effects:
 * TODO: None
 */
-int
-pr_w_web_returns(void *row)
+int pr_w_web_returns(void *row)
 {
 	struct W_WEB_RETURNS_TBL *r;
-	
+
 	if (row == NULL)
 		r = &g_w_web_returns;
 	else
 		r = row;
-	
+
 	print_start(WEB_RETURNS);
 	print_key(WR_RETURNED_DATE_SK, r->wr_returned_date_sk, 1);
 	print_key(WR_RETURNED_TIME_SK, r->wr_returned_time_sk, 1);
@@ -194,7 +191,38 @@ pr_w_web_returns(void *row)
 	print_decimal(WR_PRICING_NET_LOSS, &r->wr_pricing.net_loss, 0);
 	print_end(WEB_RETURNS);
 
-	return(0);
+	// print schema out to file
+	if (SCHEMA_W < 1)
+	{
+		print_json_schema_start(WEB_RETURNS);
+		print_json_schema_col(WEB_RETURNS, "WR_RETURNED_DATE_SK", "STRING");
+		print_json_schema_col(WEB_RETURNS, "WR_RETURNED_TIME_SK", "STRING");
+		print_json_schema_col(WEB_RETURNS, "WR_ITEM_SK", "STRING");
+		print_json_schema_col(WEB_RETURNS, "WR_REFUNDED_CUSTOMER_SK", "STRING");
+		print_json_schema_col(WEB_RETURNS, "WR_REFUNDED_CDEMO_SK", "STRING");
+		print_json_schema_col(WEB_RETURNS, "WR_REFUNDED_HDEMO_SK", "STRING");
+		print_json_schema_col(WEB_RETURNS, "WR_REFUNDED_ADDR_SK", "STRING");
+		print_json_schema_col(WEB_RETURNS, "WR_RETURNING_CUSTOMER_SK", "STRING");
+		print_json_schema_col(WEB_RETURNS, "WR_RETURNING_CDEMO_SK", "STRING");
+		print_json_schema_col(WEB_RETURNS, "WR_RETURNING_HDEMO_SK", "STRING");
+		print_json_schema_col(WEB_RETURNS, "WR_RETURNING_ADDR_SK", "STRING");
+		print_json_schema_col(WEB_RETURNS, "WR_WEB_PAGE_SK", "STRING");
+		print_json_schema_col(WEB_RETURNS, "WR_REASON_SK", "STRING");
+		print_json_schema_col(WEB_RETURNS, "WR_ORDER_NUMBER", "STRING");
+		print_json_schema_col(WEB_RETURNS, "WR_PRICING_QUANTITY", "INT");
+		print_json_schema_col(WEB_RETURNS, "WR_PRICING_NET_PAID", "DECIMAL(7,2)");
+		print_json_schema_col(WEB_RETURNS, "WR_PRICING_EXT_TAX", "DECIMAL(7,2)");
+		print_json_schema_col(WEB_RETURNS, "WR_PRICING_NET_PAID_INC_TAX", "DECIMAL(7,2)");
+		print_json_schema_col(WEB_RETURNS, "WR_PRICING_FEE", "DECIMAL(7,2)");
+		print_json_schema_col(WEB_RETURNS, "WR_PRICING_EXT_SHIP_COST", "DECIMAL(7,2)");
+		print_json_schema_col(WEB_RETURNS, "WR_PRICING_REFUNDED_CASH", "DECIMAL(7,2)");
+		print_json_schema_col(WEB_RETURNS, "WR_PRICING_REVERSED_CHARGE", "DECIMAL(7,2)");
+		print_json_schema_col(WEB_RETURNS, "WR_PRICING_STORE_CREDIT", "DECIMAL(7,2)");
+		print_json_schema_end(WEB_RETURNS, "WR_PRICING_NET_LOSS", "DECIMAL(7,2)");
+	}
+	SCHEMA_W = 1;
+
+	return (0);
 }
 
 /*
@@ -211,16 +239,14 @@ pr_w_web_returns(void *row)
 * Side Effects:
 * TODO: None
 */
-int 
-ld_w_web_returns(void *pSrc)
+int ld_w_web_returns(void *pSrc)
 {
 	struct W_WEB_RETURNS_TBL *r;
-		
+
 	if (pSrc == NULL)
 		r = &g_w_web_returns;
 	else
 		r = pSrc;
-	
-	return(0);
-}
 
+	return (0);
+}

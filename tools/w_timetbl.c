@@ -32,7 +32,7 @@
  * 
  * Contributors:
  * Gradient Systems
- */ 
+ */
 #include "config.h"
 #include "porting.h"
 #include <stdio.h>
@@ -49,26 +49,25 @@
 #include "tdefs.h"
 
 struct W_TIME_TBL g_w_time;
+static int SCHEMA_W;
 
 /*
 * mk_time
 */
-int
-mk_w_time(void* row, ds_key_t index)
+int mk_w_time(void *row, ds_key_t index)
 {
 	int res = 0;
-	
+
 	/* begin locals declarations */
 	int nTemp;
 	struct W_TIME_TBL *r;
-   tdef *pT = getSimpleTdefsByNumber(TIME);
+	tdef *pT = getSimpleTdefsByNumber(TIME);
 
 	if (row == NULL)
 		r = &g_w_time;
 	else
 		r = row;
 
-	
 	nullSet(&pT->kNullBitMap, T_NULLS);
 	r->t_time_sk = index - 1;
 	mk_bkey(&r->t_time_id[0], index, T_TIME_ID);
@@ -79,11 +78,11 @@ mk_w_time(void* row, ds_key_t index)
 	r->t_minute = nTemp % 60;
 	nTemp /= 60;
 	r->t_hour = nTemp % 24;
-	dist_member (&r->t_am_pm, "hours", r->t_hour + 1, 2);
-	dist_member (&r->t_shift, "hours", r->t_hour + 1, 3);
-	dist_member (&r->t_sub_shift, "hours", r->t_hour + 1, 4);
-	dist_member (&r->t_meal_time, "hours", r->t_hour + 1, 5);
-	
+	dist_member(&r->t_am_pm, "hours", r->t_hour + 1, 2);
+	dist_member(&r->t_shift, "hours", r->t_hour + 1, 3);
+	dist_member(&r->t_sub_shift, "hours", r->t_hour + 1, 4);
+	dist_member(&r->t_meal_time, "hours", r->t_hour + 1, 5);
+
 	return (res);
 }
 
@@ -101,8 +100,7 @@ mk_w_time(void* row, ds_key_t index)
 * Side Effects:
 * TODO: None
 */
-int
-pr_w_time(void *row)
+int pr_w_time(void *row)
 {
 	struct W_TIME_TBL *r;
 
@@ -112,8 +110,8 @@ pr_w_time(void *row)
 		r = row;
 
 	print_start(TIME);
-	print_key(T_TIME_SK, r->t_time_sk, 1);	
-	print_varchar(T_TIME_ID, r->t_time_id, 1);	
+	print_key(T_TIME_SK, r->t_time_sk, 1);
+	print_varchar(T_TIME_ID, r->t_time_id, 1);
 	print_integer(T_TIME, r->t_time, 1);
 	print_integer(T_HOUR, r->t_hour, 1);
 	print_integer(T_MINUTE, r->t_minute, 1);
@@ -123,8 +121,25 @@ pr_w_time(void *row)
 	print_varchar(T_SUB_SHIFT, r->t_sub_shift, 1);
 	print_varchar(T_MEAL_TIME, r->t_meal_time, 0);
 	print_end(TIME);
-	
-	return(0);
+
+	// print schema out to file
+	if (SCHEMA_W < 1)
+	{
+		print_json_schema_start(TIME);
+		print_json_schema_col(TIME, "T_TIME_SK", "STRING");
+		print_json_schema_col(TIME, "T_TIME_ID", "STRING");
+		print_json_schema_col(TIME, "T_TIME", "INT");
+		print_json_schema_col(TIME, "T_HOUR", "INT");
+		print_json_schema_col(TIME, "T_MINUTE", "INT");
+		print_json_schema_col(TIME, "T_SECOND", "INT");
+		print_json_schema_col(TIME, "T_AM_PM", "STRING");
+		print_json_schema_col(TIME, "T_SHIFT", "INT");
+		print_json_schema_col(TIME, "T_SUB_SHIFT", "STRING");
+		print_json_schema_end(TIME, "T_MEAL_TIME", "STRING");
+	}
+	SCHEMA_W = 1;
+
+	return (0);
 }
 
 /*
@@ -141,16 +156,14 @@ pr_w_time(void *row)
 * Side Effects:
 * TODO: None
 */
-int 
-ld_w_time(void *pSrc)
+int ld_w_time(void *pSrc)
 {
 	struct W_TIME_TBL *r;
-		
+
 	if (pSrc == NULL)
 		r = &g_w_time;
 	else
 		r = pSrc;
-	
-	return(0);
-}
 
+	return (0);
+}

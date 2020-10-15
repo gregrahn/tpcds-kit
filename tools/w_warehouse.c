@@ -32,7 +32,7 @@
  * 
  * Contributors:
  * Gradient Systems
- */ 
+ */
 #include "config.h"
 #include "porting.h"
 #include <stdio.h>
@@ -51,39 +51,37 @@
 #include "tdefs.h"
 
 struct W_WAREHOUSE_TBL g_w_warehouse;
+static int SCHEMA_W;
 
 /*
 * mk_warehouse
 */
-int
-mk_w_warehouse (void* row, ds_key_t index)
+int mk_w_warehouse(void *row, ds_key_t index)
 {
 	int res = 0;
-	
+
 	/* begin locals declarations */
 	struct W_WAREHOUSE_TBL *r;
-   tdef *pT = getSimpleTdefsByNumber(WAREHOUSE);
+	tdef *pT = getSimpleTdefsByNumber(WAREHOUSE);
 
 	if (row == NULL)
 		r = &g_w_warehouse;
 	else
 		r = row;
-	
-	
+
 	nullSet(&pT->kNullBitMap, W_NULLS);
 	r->w_warehouse_sk = index;
 	mk_bkey(&r->w_warehouse_id[0], index, W_WAREHOUSE_ID);
-	gen_text (&r->w_warehouse_name[0], W_NAME_MIN,
-		RS_W_WAREHOUSE_NAME, W_WAREHOUSE_NAME);
+	gen_text(&r->w_warehouse_name[0], W_NAME_MIN,
+			 RS_W_WAREHOUSE_NAME, W_WAREHOUSE_NAME);
 	r->w_warehouse_sq_ft =
-		genrand_integer (NULL, DIST_UNIFORM,
-		W_SQFT_MIN, W_SQFT_MAX, 0, W_WAREHOUSE_SQ_FT);
+		genrand_integer(NULL, DIST_UNIFORM,
+						W_SQFT_MIN, W_SQFT_MAX, 0, W_WAREHOUSE_SQ_FT);
 
 	mk_address(&r->w_address, W_WAREHOUSE_ADDRESS);
-	
+
 	return (res);
 }
-
 
 /*
 * Routine: 
@@ -99,8 +97,7 @@ mk_w_warehouse (void* row, ds_key_t index)
 * Side Effects:
 * TODO: None
 */
-int
-pr_w_warehouse(void *row)
+int pr_w_warehouse(void *row)
 {
 	struct W_WAREHOUSE_TBL *r;
 	char szTemp[128];
@@ -134,7 +131,28 @@ pr_w_warehouse(void *row)
 	print_integer(W_ADDRESS_GMT_OFFSET, r->w_address.gmt_offset, 0);
 	print_end(WAREHOUSE);
 
-	return(0);
+	// print schema out to file
+	if (SCHEMA_W < 1)
+	{
+		print_json_schema_start(WAREHOUSE);
+		print_json_schema_col(WAREHOUSE, "W_WAREHOUSE_SK", "STRING");
+		print_json_schema_col(WAREHOUSE, "W_WAREHOUSE_ID", "STRING");
+		print_json_schema_col(WAREHOUSE, "W_WAREHOUSE_NAME", "STRING");
+		print_json_schema_col(WAREHOUSE, "W_WAREHOUSE_SQ_FT", "INT");
+		print_json_schema_col(WAREHOUSE, "W_ADDRESS_STREET_NUM", "INT");
+		print_json_schema_col(WAREHOUSE, "W_ADDRESS_STREET_NAME1", "STRING");
+		print_json_schema_col(WAREHOUSE, "W_ADDRESS_STREET_TYPE", "STRING");
+		print_json_schema_col(WAREHOUSE, "W_ADDRESS_SUITE_NUM", "INT");
+		print_json_schema_col(WAREHOUSE, "W_ADDRESS_CITY", "STRING");
+		print_json_schema_col(WAREHOUSE, "W_ADDRESS_COUNTY", "STRING");
+		print_json_schema_col(WAREHOUSE, "W_ADDRESS_STATE", "STRING");
+		print_json_schema_col(WAREHOUSE, "W_ADDRESS_ZIP", "STRING");
+		print_json_schema_col(WAREHOUSE, "W_ADDRESS_COUNTRY", "STRING");
+		print_json_schema_end(WAREHOUSE, "W_ADDRESS_GMT_OFFSET", "INT");
+	}
+	SCHEMA_W = 1;
+
+	return (0);
 }
 
 /*
@@ -151,16 +169,14 @@ pr_w_warehouse(void *row)
 * Side Effects:
 * TODO: None
 */
-int 
-ld_w_warehouse(void *pSrc)
+int ld_w_warehouse(void *pSrc)
 {
 	struct W_WAREHOUSE_TBL *r;
-		
+
 	if (pSrc == NULL)
 		r = &g_w_warehouse;
 	else
 		r = pSrc;
-	
-	return(0);
-}
 
+	return (0);
+}

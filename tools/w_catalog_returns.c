@@ -32,7 +32,7 @@
  * 
  * Contributors:
  * Gradient Systems
- */ 
+ */
 #include "config.h"
 #include "porting.h"
 #include <stdio.h>
@@ -50,6 +50,7 @@
 
 struct W_CATALOG_RETURNS_TBL g_w_catalog_returns;
 extern struct W_CATALOG_SALES_TBL g_w_catalog_sales;
+static int SCHEMA_W;
 
 /*
 * Routine: mk_catalog_returns()
@@ -68,18 +69,17 @@ extern struct W_CATALOG_SALES_TBL g_w_catalog_sales;
 * 20020902 jms Need to link call center to date/time of return
 * 20031023 jms removed ability for stand alone generation
 */
-int
-mk_w_catalog_returns (void * row, ds_key_t index)
+int mk_w_catalog_returns(void *row, ds_key_t index)
 {
 	int res = 0;
-	
+
 	static decimal_t dHundred;
-	int nTemp;	
+	int nTemp;
 	struct W_CATALOG_RETURNS_TBL *r;
 	struct W_CATALOG_SALES_TBL *sale = &g_w_catalog_sales;
 	static int bInit = 0;
 	static int bStandAlone = 0;
-   tdef *pTdef = getSimpleTdefsByNumber(CATALOG_RETURNS);
+	tdef *pTdef = getSimpleTdefsByNumber(CATALOG_RETURNS);
 
 	if (row == NULL)
 		r = &g_w_catalog_returns;
@@ -87,10 +87,10 @@ mk_w_catalog_returns (void * row, ds_key_t index)
 		r = row;
 
 	if (!bInit)
-	{        
+	{
 		strtodec(&dHundred, "100.00");
 	}
-	
+
 	/* if we were not called from the parent table's mk_xxx routine, then 
 	 * move to a parent row that needs to be returned, and generate it
 	 */
@@ -101,11 +101,11 @@ mk_w_catalog_returns (void * row, ds_key_t index)
 		if (nTemp >= CR_RETURN_PCT)
 		{
 			row_skip(CATALOG_SALES, 1);
-			return(1);
+			return (1);
 		}
 		mk_w_catalog_sales(&g_w_catalog_sales, index);
 	}
-	
+
 	/*
 	* Some of the information in the return is taken from the original sale
 	* which has been regenerated
@@ -124,40 +124,39 @@ mk_w_catalog_returns (void * row, ds_key_t index)
 	 * some of the fields are conditionally taken from the sale 
 	 */
 	r->cr_returning_customer_sk =
-		mk_join (CR_RETURNING_CUSTOMER_SK, CUSTOMER, 2);
+		mk_join(CR_RETURNING_CUSTOMER_SK, CUSTOMER, 2);
 	r->cr_returning_cdemo_sk =
-		mk_join (CR_RETURNING_CDEMO_SK, CUSTOMER_DEMOGRAPHICS, 2);
+		mk_join(CR_RETURNING_CDEMO_SK, CUSTOMER_DEMOGRAPHICS, 2);
 	r->cr_returning_hdemo_sk =
-		mk_join (CR_RETURNING_HDEMO_SK, HOUSEHOLD_DEMOGRAPHICS, 2);
+		mk_join(CR_RETURNING_HDEMO_SK, HOUSEHOLD_DEMOGRAPHICS, 2);
 	r->cr_returning_addr_sk =
-		mk_join (CR_RETURNING_ADDR_SK, CUSTOMER_ADDRESS, 2);
-	if (genrand_integer(NULL, DIST_UNIFORM, 0, 99, 0, CR_RETURNING_CUSTOMER_SK) 
-		< CS_GIFT_PCT)
+		mk_join(CR_RETURNING_ADDR_SK, CUSTOMER_ADDRESS, 2);
+	if (genrand_integer(NULL, DIST_UNIFORM, 0, 99, 0, CR_RETURNING_CUSTOMER_SK) < CS_GIFT_PCT)
 	{
-	r->cr_returning_customer_sk = sale->cs_ship_customer_sk;
-	r->cr_returning_cdemo_sk = sale->cs_ship_cdemo_sk;
-	/* cr_returning_hdemo_sk removed, since it doesn't exist on the sales record */
-	r->cr_returning_addr_sk = sale->cs_ship_addr_sk;
+		r->cr_returning_customer_sk = sale->cs_ship_customer_sk;
+		r->cr_returning_cdemo_sk = sale->cs_ship_cdemo_sk;
+		/* cr_returning_hdemo_sk removed, since it doesn't exist on the sales record */
+		r->cr_returning_addr_sk = sale->cs_ship_addr_sk;
 	}
 
 	/**
     * the rest of the columns are generated for this specific return
 	*/
 	/* the items cannot be returned until they are shipped; offset is handled in mk_join, based on sales date */
-	r->cr_returned_date_sk = mk_join (CR_RETURNED_DATE_SK, DATE, sale->cs_ship_date_sk);
+	r->cr_returned_date_sk = mk_join(CR_RETURNED_DATE_SK, DATE, sale->cs_ship_date_sk);
 
 	/* the call center determines the time of the return */
 	r->cr_returned_time_sk =
-		mk_join (CR_RETURNED_TIME_SK, TIME, 1);
+		mk_join(CR_RETURNED_TIME_SK, TIME, 1);
 
-	r->cr_ship_mode_sk = mk_join (CR_SHIP_MODE_SK, SHIP_MODE, 1);
-	r->cr_warehouse_sk = mk_join (CR_WAREHOUSE_SK, WAREHOUSE, 1);
-	r->cr_reason_sk = mk_join (CR_REASON_SK, REASON, 1);
+	r->cr_ship_mode_sk = mk_join(CR_SHIP_MODE_SK, SHIP_MODE, 1);
+	r->cr_warehouse_sk = mk_join(CR_WAREHOUSE_SK, WAREHOUSE, 1);
+	r->cr_reason_sk = mk_join(CR_REASON_SK, REASON, 1);
 	if (sale->cs_pricing.quantity != -1)
 		genrand_integer(&r->cr_pricing.quantity, DIST_UNIFORM,
-		1, sale->cs_pricing.quantity, 0, CR_PRICING);
+						1, sale->cs_pricing.quantity, 0, CR_PRICING);
 	else
-	r->cr_pricing.quantity = -1;
+		r->cr_pricing.quantity = -1;
 	set_pricing(CR_PRICING, &r->cr_pricing);
 
 	return (res);
@@ -177,8 +176,7 @@ mk_w_catalog_returns (void * row, ds_key_t index)
 * Side Effects:
 * TODO: None
 */
-int
-pr_w_catalog_returns(void *row)
+int pr_w_catalog_returns(void *row)
 {
 
 	struct W_CATALOG_RETURNS_TBL *r;
@@ -216,10 +214,46 @@ pr_w_catalog_returns(void *row)
 	print_decimal(CR_PRICING_REVERSED_CHARGE, &r->cr_pricing.reversed_charge, 1);
 	print_decimal(CR_PRICING_STORE_CREDIT, &r->cr_pricing.store_credit, 1);
 	print_decimal(CR_PRICING_NET_LOSS, &r->cr_pricing.net_loss, 0);
-	
+
 	print_end(CATALOG_RETURNS);
 
-	return(0);
+	// print schema out to file
+	if (SCHEMA_W < 1)
+	{
+
+		print_json_schema_start(CATALOG_RETURNS);
+		print_json_schema_col(CATALOG_RETURNS, "CR_RETURNED_DATE_SK", "STRING");
+		print_json_schema_col(CATALOG_RETURNS, "CR_RETURNED_TIME_SK", "STRING");
+		print_json_schema_col(CATALOG_RETURNS, "CR_ITEM_SK", "STRING");
+		print_json_schema_col(CATALOG_RETURNS, "CR_REFUNDED_CUSTOMER_SK", "STRING");
+		print_json_schema_col(CATALOG_RETURNS, "CR_REFUNDED_CDEMO_SK", "STRING");
+		print_json_schema_col(CATALOG_RETURNS, "CR_REFUNDED_HDEMO_SK", "STRING");
+		print_json_schema_col(CATALOG_RETURNS, "CR_REFUNDED_ADDR_SK", "STRING");
+		print_json_schema_col(CATALOG_RETURNS, "CR_RETURNING_CUSTOMER_SK", "STRING");
+		print_json_schema_col(CATALOG_RETURNS, "CR_RETURNING_CDEMO_SK", "STRING");
+		print_json_schema_col(CATALOG_RETURNS, "CR_RETURNING_HDEMO_SK", "STRING");
+		print_json_schema_col(CATALOG_RETURNS, "CR_RETURNING_ADDR_SK", "STRING");
+		print_json_schema_col(CATALOG_RETURNS, "CR_CALL_CENTER_SK", "STRING");
+		print_json_schema_col(CATALOG_RETURNS, "CR_CATALOG_PAGE_SK", "STRING");
+		print_json_schema_col(CATALOG_RETURNS, "CR_SHIP_MODE_SK", "STRING");
+		print_json_schema_col(CATALOG_RETURNS, "CR_RETURNING_ADDR_SK", "STRING");
+		print_json_schema_col(CATALOG_RETURNS, "CR_WAREHOUSE_SK", "STRING");
+		print_json_schema_col(CATALOG_RETURNS, "CR_REASON_SK", "STRING");
+		print_json_schema_col(CATALOG_RETURNS, "CR_ORDER_NUMBER", "STRING");
+		print_json_schema_col(CATALOG_RETURNS, "CR_PRICING_QUANTITY", "INT");
+		print_json_schema_col(CATALOG_RETURNS, "CR_PRICING_NET_PAID", "DECIMAL(7,2)");
+		print_json_schema_col(CATALOG_RETURNS, "CR_PRICING_EXT_TAX", "DECIMAL(7,2)");
+		print_json_schema_col(CATALOG_RETURNS, "CR_PRICING_NET_PAID_INC_TAX", "DECIMAL(7,2)");
+		print_json_schema_col(CATALOG_RETURNS, "CR_PRICING_FEE", "DECIMAL(7,2)");
+		print_json_schema_col(CATALOG_RETURNS, "CR_PRICING_EXT_SHIP_COST", "DECIMAL(7,2)");
+		print_json_schema_col(CATALOG_RETURNS, "CR_PRICING_REFUNDED_CASH", "DECIMAL(7,2)");
+		print_json_schema_col(CATALOG_RETURNS, "CR_PRICING_REVERSED_CHARGE", "DECIMAL(7,2)");
+		print_json_schema_col(CATALOG_RETURNS, "CR_PRICING_STORE_CREDIT", "DECIMAL(7,2)");
+		print_json_schema_end(CATALOG_RETURNS, "CR_PRICING_NET_LOSS", "DECIMAL(7,2)");
+	}
+	SCHEMA_W = 1;
+
+	return (0);
 }
 
 /*
@@ -236,8 +270,7 @@ pr_w_catalog_returns(void *row)
 * Side Effects:
 * TODO: None
 */
-int
-ld_w_catalog_returns(void *row)
+int ld_w_catalog_returns(void *row)
 {
 	struct W_CATALOG_RETURNS_TBL *r;
 
@@ -246,7 +279,5 @@ ld_w_catalog_returns(void *row)
 	else
 		r = row;
 
-	return(0);
-
+	return (0);
 }
-
