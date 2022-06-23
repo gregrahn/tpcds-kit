@@ -274,8 +274,11 @@ ParseFile (char *szPath)
    while ((fgets (szLine, 4096, fp) != NULL) && (nRetCode >= 0))
      {
         nLineNumber += 1;
-        if ((cp = strchr (szLine, '\n')))
-           *cp = '\0';
+        if ((cp = strchr (szLine, '\n'))) {
+          *cp = '\0';
+          if ((cp = strchr (szLine, '\r'))) 
+            *cp = '\0';
+        }
         else
            ReportError (QERR_LINE_TOO_LONG, NULL, 1);
 
